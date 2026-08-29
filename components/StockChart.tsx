@@ -94,7 +94,7 @@ export default function StockChart({ data, period, onPeriodChange, loading, tick
         titleFont: { family: "Inter", size: 11 },
         bodyFont: { family: "JetBrains Mono", size: 13, weight: "bold" as const },
         callbacks: {
-          label: (ctx) => ` $${ctx.parsed.y.toFixed(2)}`,
+          label: (ctx) => ` $${(ctx.parsed.y ?? 0).toFixed(2)}`,
         },
         padding: 12,
         cornerRadius: 10,
@@ -156,7 +156,7 @@ export default function StockChart({ data, period, onPeriodChange, loading, tick
         titleColor: "#8899bb",
         bodyColor: "#e8edf8",
         callbacks: {
-          label: (ctx) => ` Vol: ${(ctx.parsed.y / 1e6).toFixed(1)}M`,
+          label: (ctx) => ` Vol: ${((ctx.parsed.y ?? 0) / 1e6).toFixed(1)}M`,
         },
         padding: 10,
         cornerRadius: 10,

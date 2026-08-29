@@ -28,7 +28,7 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
   const [recent, setRecent] = useState<{ symbol: string; name: string }[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     const stored = localStorage.getItem("recent_searches");

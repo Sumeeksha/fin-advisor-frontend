@@ -45,7 +45,7 @@ export default function DashboardPage() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const [error, setError] = useState<string | null>(null);
-  const refreshRef = useRef<ReturnType<typeof setInterval>>();
+  const refreshRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
   const fetchQuote = useCallback(async (t: string) => {
     setLoadingQuote(true);
