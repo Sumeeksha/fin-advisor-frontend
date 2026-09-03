@@ -116,8 +116,7 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
           onChange={(e) => { setQuery(e.target.value); setOpen(true); setActiveIndex(-1); }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder="Search stocks... (e.g. AAPL, Tesla, NVDA)"
-          className="w-full pl-12 pr-12 py-4 rounded-2xl text-base font-medium outline-none transition-all duration-300 bg-slate-900/90 border border-[var(--border-color)] text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:border-[var(--accent-blue)] hover:border-[var(--border-hover)]"
+          className="w-full pl-12 pr-12 py-4 rounded-2xl text-base font-medium outline-none transition-all duration-300 bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:border-[var(--accent-blue)] hover:border-[var(--border-hover)] shadow-sm"
         />
         {query && (
           <button

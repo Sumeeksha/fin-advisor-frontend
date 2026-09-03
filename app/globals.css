@@ -11,6 +11,7 @@
   --border-hover: rgba(99, 130, 255, 0.4);
   --text-primary: #e8edf8;
   --text-secondary: #8899bb;
+  --header-bg: rgba(8, 13, 26, 0.85);
   --accent-blue: #4f80ff;
   --accent-cyan: #00d4ff;
   --color-bull: #10d98a;
@@ -19,6 +20,30 @@
   --glow-blue: 0 0 40px rgba(79, 128, 255, 0.3);
   --glow-green: 0 0 40px rgba(16, 217, 138, 0.2);
   --glow-red: 0 0 40px rgba(255, 77, 109, 0.2);
+  --card-subtle: rgba(255, 255, 255, 0.03);
+  --card-subtle-border: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="light"], .light {
+  --bg-primary: #f3f6fc;
+  --bg-secondary: #ffffff;
+  --bg-card: rgba(255, 255, 255, 0.92);
+  --bg-card-hover: rgba(255, 255, 255, 1);
+  --border-color: rgba(99, 130, 255, 0.22);
+  --border-hover: rgba(79, 128, 255, 0.55);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --header-bg: rgba(243, 246, 252, 0.9);
+  --accent-blue: #2563eb;
+  --accent-cyan: #0284c7;
+  --color-bull: #059669;
+  --color-bear: #e11d48;
+  --color-neutral: #d97706;
+  --glow-blue: 0 4px 20px rgba(37, 99, 235, 0.12);
+  --glow-green: 0 4px 20px rgba(5, 150, 105, 0.12);
+  --glow-red: 0 4px 20px rgba(225, 29, 72, 0.12);
+  --card-subtle: rgba(0, 0, 0, 0.04);
+  --card-subtle-border: rgba(0, 0, 0, 0.08);
 }
 
 * {
@@ -36,6 +61,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* ── Scrollbar ───────────────────────────── */

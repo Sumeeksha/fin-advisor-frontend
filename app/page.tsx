@@ -14,6 +14,7 @@ import AdvicePanel from "@/components/AdvicePanel";
 import ForecastChart from "@/components/ForecastChart";
 import NewsPanel from "@/components/NewsPanel";
 import InsightPanel from "@/components/InsightPanel";
+import ThemeToggle from "@/components/ThemeToggle";
 
 import { RefreshCw, BarChart2, TrendingUp, Newspaper, Activity } from "lucide-react";
 
@@ -162,39 +163,43 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen grid-bg">
       {/* ── Header ──────────────────────────────────── */}
-      <header className="sticky top-0 z-40 border-b border-[var(--border-color)] bg-[rgba(8,13,26,0.85)] backdrop-blur-xl">
-        <div className="max-w-screen-xl mx-auto px-4 py-3 flex items-center gap-4 flex-wrap">
+      <header className="sticky top-0 z-40 border-b border-[var(--border-color)] bg-[var(--header-bg)] backdrop-blur-xl transition-colors duration-300">
+        <div className="max-w-screen-xl mx-auto px-4 py-2.5 flex items-center justify-between gap-4 flex-wrap sm:flex-nowrap">
           {/* Logo */}
           <button
             onClick={() => setTicker(null)}
             className="flex items-center gap-2 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
           >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[var(--accent-blue)] to-[var(--accent-cyan)] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[var(--accent-blue)] to-[var(--accent-cyan)] flex items-center justify-center shadow-sm">
               <TrendingUp size={16} className="text-white" />
             </div>
             <span className="text-lg font-black gradient-text tracking-tight hidden sm:block">FinAdvisor</span>
           </button>
 
           {/* Search */}
-          <div className="flex-1 min-w-[240px]">
+          <div className="flex-1 min-w-[220px] max-w-xl">
             <SearchBar onSelect={handleSelect} />
           </div>
 
-          {/* Refresh */}
-          {ticker && (
-            <button
-              id="refresh-btn"
-              onClick={handleRefresh}
-              disabled={loadingQuote}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-[var(--text-secondary)]
-                hover:text-[var(--text-primary)] hover:bg-[rgba(79,128,255,0.1)] transition-all duration-200 border border-[var(--border-color)]"
-            >
-              <RefreshCw size={14} className={loadingQuote ? "animate-spin" : ""} />
-              <span className="hidden sm:block">
-                {lastUpdated ? `${formatTime(lastUpdated)}` : "Refresh"}
-              </span>
-            </button>
-          )}
+          {/* Right Controls: Refresh + Theme Toggle Switch */}
+          <div className="flex items-center gap-3 flex-shrink-0 ml-auto sm:ml-0">
+            {ticker && (
+              <button
+                id="refresh-btn"
+                onClick={handleRefresh}
+                disabled={loadingQuote}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-[var(--text-secondary)]
+                  hover:text-[var(--text-primary)] hover:bg-[rgba(79,128,255,0.1)] transition-all duration-200 border border-[var(--border-color)]"
+              >
+                <RefreshCw size={14} className={loadingQuote ? "animate-spin" : ""} />
+                <span className="hidden sm:block">
+                  {lastUpdated ? `${formatTime(lastUpdated)}` : "Refresh"}
+                </span>
+              </button>
+            )}
+
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
