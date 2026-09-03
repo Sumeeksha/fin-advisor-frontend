@@ -107,6 +107,32 @@ export interface AdviceData {
   quote: QuoteData;
 }
 
+export interface LLMInsight {
+  summary: string;
+  trend_explanation: string[];
+  divergence_warning: {
+    detected: boolean;
+    explanation: string;
+  };
+  key_risks: string[];
+  disclaimer: string;
+}
+
+export interface InsightData {
+  ticker: string;
+  signal: "BUY" | "HOLD" | "SELL";
+  confidence: number;
+  risk_profile: string;
+  llm_insight: LLMInsight;
+  quote: {
+    price: number;
+    change: number;
+    change_pct: number;
+  };
+  indicators_snapshot: Record<string, unknown>;
+  forecast_snapshot: Record<string, unknown>;
+}
+
 export interface ForecastData {
   ticker: string;
   method: string;
@@ -186,6 +212,11 @@ export const api = {
 
   getNews: (ticker: string) =>
     fetchApi<{ ticker: string; news: NewsItem[] }>(`/api/news/${ticker}`),
+
+  getInsight: (ticker: string, riskProfile: string = "Moderate") =>
+    fetchApi<InsightData>(
+      `/api/insight/${ticker}?risk_profile=${encodeURIComponent(riskProfile)}`
+    ),
 };
 
 // ── Formatting helpers ────────────────────────

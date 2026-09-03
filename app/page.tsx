@@ -13,6 +13,7 @@ import IndicatorPanel from "@/components/IndicatorPanel";
 import AdvicePanel from "@/components/AdvicePanel";
 import ForecastChart from "@/components/ForecastChart";
 import NewsPanel from "@/components/NewsPanel";
+import InsightPanel from "@/components/InsightPanel";
 
 import { RefreshCw, BarChart2, TrendingUp, Newspaper, Activity } from "lucide-react";
 
@@ -34,6 +35,7 @@ export default function DashboardPage() {
   const [advice, setAdvice] = useState<AdviceData | null>(null);
   const [forecast, setForecast] = useState<ForecastData | null>(null);
   const [news, setNews] = useState<NewsItem[]>([]);
+  const [insight, setInsight] = useState<InsightData | null>(null);
 
   // Loading states
   const [loadingQuote, setLoadingQuote] = useState(false);
@@ -42,6 +44,7 @@ export default function DashboardPage() {
   const [loadingAdvice, setLoadingAdvice] = useState(false);
   const [loadingForecast, setLoadingForecast] = useState(false);
   const [loadingNews, setLoadingNews] = useState(false);
+  const [loadingInsight, setLoadingInsight] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const [error, setError] = useState<string | null>(null);
@@ -76,6 +79,7 @@ export default function DashboardPage() {
     setLoadingAdvice(true);
     setLoadingForecast(true);
     setLoadingNews(true);
+    setLoadingInsight(true);
 
     fetchQuote(t);
 
@@ -100,6 +104,11 @@ export default function DashboardPage() {
       .then((d) => setNews(d.news))
       .catch(() => { })
       .finally(() => setLoadingNews(false));
+
+    api.getInsight(t)
+      .then(setInsight)
+      .catch(() => { })
+      .finally(() => setLoadingInsight(false));
   }, [fetchQuote]);
 
   // When ticker changes
@@ -111,6 +120,7 @@ export default function DashboardPage() {
     setAdvice(null);
     setForecast(null);
     setNews([]);
+    setInsight(null);
     setInfo(null);
     setError(null);
 
@@ -155,7 +165,7 @@ export default function DashboardPage() {
       <header className="sticky top-0 z-40 border-b border-[var(--border-color)] bg-[rgba(8,13,26,0.85)] backdrop-blur-xl">
         <div className="max-w-screen-xl mx-auto px-4 py-3 flex items-center gap-4 flex-wrap">
           {/* Logo */}
-          <button 
+          <button
             onClick={() => setTicker(null)}
             className="flex items-center gap-2 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
           >
@@ -215,8 +225,8 @@ export default function DashboardPage() {
                     id={`tab-${t.id}`}
                     onClick={() => setActiveTab(t.id)}
                     className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${activeTab === t.id
-                        ? "tab-active"
-                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                      ? "tab-active"
+                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                       }`}
                   >
                     {t.icon}
@@ -240,9 +250,10 @@ export default function DashboardPage() {
                     ticker={ticker}
                   />
                 </div>
-                {/* Right: Advice */}
+                {/* Right: Advice & Insight */}
                 <div className="space-y-4">
                   <AdvicePanel data={advice} loading={loadingAdvice && !advice} />
+                  <InsightPanel data={insight} loading={loadingInsight && !insight} />
                 </div>
               </div>
             )}
