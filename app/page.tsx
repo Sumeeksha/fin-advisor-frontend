@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Link from "next/link";
 import {
   api,
   QuoteData, OHLCVBar, IndicatorData, AdviceData, ForecastData, NewsItem, CompanyInfo, InsightData
 } from "@/lib/api";
+import { getStoredUser, clearSession, fetchCurrentUser, User } from "@/lib/auth";
 
 import SearchBar from "@/components/SearchBar";
 import PriceCard from "@/components/PriceCard";
@@ -16,13 +18,14 @@ import NewsPanel from "@/components/NewsPanel";
 import InsightPanel from "@/components/InsightPanel";
 import ThemeToggle from "@/components/ThemeToggle";
 
-import { RefreshCw, BarChart2, TrendingUp, Newspaper, Activity } from "lucide-react";
+import { RefreshCw, BarChart2, TrendingUp, Newspaper, Activity, LogOut, LogIn } from "lucide-react";
 
 const REFRESH_INTERVAL = 60000; // 60 seconds
 
 type TabId = "overview" | "indicators" | "forecast" | "news";
 
 export default function DashboardPage() {
+  const [user, setUser] = useState<User | null>(null);
   const [ticker, setTicker] = useState<string | null>(null);
   const [tickerName, setTickerName] = useState("");
   const [period, setPeriod] = useState("3M");
@@ -50,6 +53,18 @@ export default function DashboardPage() {
 
   const [error, setError] = useState<string | null>(null);
   const refreshRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+
+  useEffect(() => {
+    setUser(getStoredUser());
+    fetchCurrentUser().then((u) => {
+      if (u) setUser(u);
+    });
+  }, []);
+
+  const handleLogout = () => {
+    clearSession();
+    setUser(null);
+  };
 
   const fetchQuote = useCallback(async (t: string) => {
     setLoadingQuote(true);
@@ -102,7 +117,7 @@ export default function DashboardPage() {
       .finally(() => setLoadingForecast(false));
 
     api.getNews(t)
-      .then((d) => setNews(d.news))
+      .then((res) => setNews(res.news))
       .catch(() => { })
       .finally(() => setLoadingNews(false));
 
@@ -112,39 +127,34 @@ export default function DashboardPage() {
       .finally(() => setLoadingInsight(false));
   }, [fetchQuote]);
 
-  // When ticker changes
-  useEffect(() => {
-    if (!ticker) return;
+  const handleSelect = (symbol: string, name: string) => {
+    setTicker(symbol);
+    setTickerName(name);
     setQuote(null);
+    setInfo(null);
     setHistory([]);
     setIndicators(null);
     setAdvice(null);
     setForecast(null);
     setNews([]);
     setInsight(null);
-    setInfo(null);
     setError(null);
+    fetchAll(symbol);
+    fetchHistory(symbol, period);
+  };
 
-    fetchAll(ticker);
-    fetchHistory(ticker, period);
-
-    // Auto-refresh quote every 60s
-    clearInterval(refreshRef.current);
-    refreshRef.current = setInterval(() => fetchQuote(ticker), REFRESH_INTERVAL);
-    return () => clearInterval(refreshRef.current);
-  }, [ticker]);
-
-  // When period changes
   useEffect(() => {
     if (!ticker) return;
     fetchHistory(ticker, period);
-  }, [period, ticker]);
+  }, [period, ticker, fetchHistory]);
 
-  const handleSelect = (symbol: string, name: string) => {
-    setTicker(symbol);
-    setTickerName(name);
-    setActiveTab("overview");
-  };
+  useEffect(() => {
+    if (!ticker) return;
+    refreshRef.current = setInterval(() => {
+      fetchQuote(ticker);
+    }, REFRESH_INTERVAL);
+    return () => clearInterval(refreshRef.current);
+  }, [ticker, fetchQuote]);
 
   const handleRefresh = () => {
     if (ticker) {
@@ -161,180 +171,278 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen grid-bg">
-      {/* ── Header ──────────────────────────────────── */}
-      <header className="sticky top-0 z-40 border-b border-[var(--border-color)] bg-[var(--header-bg)] backdrop-blur-xl transition-colors duration-300">
-        <div className="max-w-screen-xl mx-auto px-4 py-2.5 flex items-center justify-between gap-4 flex-wrap sm:flex-nowrap">
-          {/* Logo */}
-          <button
-            onClick={() => setTicker(null)}
-            className="flex items-center gap-2 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
-          >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[var(--accent-blue)] to-[var(--accent-cyan)] flex items-center justify-center shadow-sm">
-              <TrendingUp size={16} className="text-white" />
-            </div>
-            <span className="text-lg font-black gradient-text tracking-tight hidden sm:block">FinAdvisor</span>
-          </button>
-
-          {/* Search */}
-          <div className="flex-1 min-w-[220px] max-w-xl">
-            <SearchBar onSelect={handleSelect} />
-          </div>
-
-          {/* Right Controls: Refresh + Theme Toggle Switch */}
-          <div className="flex items-center gap-3 flex-shrink-0 ml-auto sm:ml-0">
-            {ticker && (
+    <div className="min-h-screen grid-bg flex flex-col justify-between">
+      <div>
+        {/* ── Top Header ────────────────────────── */}
+        <header className="sticky top-0 z-40 app-header backdrop-blur-xl transition-colors duration-300">
+          <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-4 flex-wrap sm:flex-nowrap">
+            
+            {/* Logo & Ticker Tape */}
+            <div className="flex items-center gap-4 flex-shrink-0">
               <button
-                id="refresh-btn"
-                onClick={handleRefresh}
-                disabled={loadingQuote}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-[var(--text-secondary)]
-                  hover:text-[var(--text-primary)] hover:bg-[rgba(79,128,255,0.1)] transition-all duration-200 border border-[var(--border-color)]"
+                onClick={() => setTicker(null)}
+                className="flex items-center gap-2.5 cursor-pointer hover:opacity-90 transition-opacity"
               >
-                <RefreshCw size={14} className={loadingQuote ? "animate-spin" : ""} />
-                <span className="hidden sm:block">
-                  {lastUpdated ? `${formatTime(lastUpdated)}` : "Refresh"}
-                </span>
+                <div className="w-7 h-7 rounded-lg app-logo-icon flex items-center justify-center">
+                  <TrendingUp size={16} className="text-white" />
+                </div>
+                <span className="text-xl font-black app-logo-text tracking-tight">FinAdvisor</span>
               </button>
-            )}
 
-            <ThemeToggle />
+              {/* Ticker status badge */}
+              <div className="hidden lg:flex items-center gap-2 text-xs market-status-badge px-3 py-1 rounded-full font-medium">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 live-pulse" />
+                <span className="font-semibold">US Markets Open</span>
+                <span className="opacity-40">|</span>
+                <span className="font-mono">SPY <span className="text-emerald-500 font-semibold">+0.64%</span></span>
+                <span className="font-mono">QQQ <span className="text-emerald-500 font-semibold">+1.12%</span></span>
+              </div>
+            </div>
+
+            {/* Search Bar */}
+            <div className="flex-1 min-w-[220px] max-w-xl">
+              <SearchBar onSelect={handleSelect} />
+            </div>
+
+            {/* Right Controls: Refresh + Dark Mode Toggle + Sign In */}
+            <div className="flex items-center gap-3 flex-shrink-0 ml-auto sm:ml-0">
+              {ticker && (
+                <button
+                  id="refresh-btn"
+                  onClick={handleRefresh}
+                  disabled={loadingQuote}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium market-status-badge transition-all"
+                >
+                  <RefreshCw size={13} className={loadingQuote ? "animate-spin" : ""} />
+                  <span className="hidden sm:block">
+                    {lastUpdated ? `${formatTime(lastUpdated)}` : "Refresh"}
+                  </span>
+                </button>
+              )}
+
+              <ThemeToggle />
+
+              {/* User Auth Control Pill */}
+              {user ? (
+                <div className="flex items-center gap-2 market-status-badge px-3 py-1 rounded-xl">
+                  {user.picture ? (
+                    <img
+                      src={user.picture}
+                      alt={user.name || "User Avatar"}
+                      className="w-5 h-5 rounded-full ring-2 ring-blue-500 shrink-0"
+                    />
+                  ) : (
+                    <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+                      {user.name ? user.name[0].toUpperCase() : "U"}
+                    </div>
+                  )}
+                  <span className="text-xs font-medium max-w-[90px] truncate hidden md:inline">
+                    {user.name || user.email}
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    title="Sign Out"
+                    className="opacity-70 hover:opacity-100 hover:text-rose-400 p-0.5 transition-colors"
+                  >
+                    <LogOut size={13} />
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-lg shadow-blue-600/20 transition-all"
+                >
+                  <LogIn size={14} />
+                  <span>Sign In</span>
+                </Link>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* ── Main Workspace ───────────────────────────────── */}
+        <main className="max-w-7xl mx-auto px-4 pb-12">
+          {!ticker ? (
+            <WelcomeScreen onSelect={handleSelect} />
+          ) : (
+            <>
+              {/* Error Banner */}
+              {error && (
+                <div className="mt-4 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm">
+                  ⚠️ {error}
+                </div>
+              )}
+
+              {/* Ticker header */}
+              <div className="flex items-center justify-between mt-6 mb-4 flex-wrap gap-2">
+                <div>
+                  <h1 className="text-2xl font-black">{ticker}</h1>
+                  <p className="opacity-70 text-sm">{tickerName}</p>
+                </div>
+                {/* Tabs */}
+                <div className="flex gap-1 market-status-badge rounded-xl p-1">
+                  {TABS.map((t) => (
+                    <button
+                      key={t.id}
+                      id={`tab-${t.id}`}
+                      onClick={() => setActiveTab(t.id)}
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                        activeTab === t.id
+                          ? "bg-blue-600 text-white shadow-sm"
+                          : "opacity-70 hover:opacity-100"
+                      }`}
+                    >
+                      {t.icon}
+                      <span className="hidden sm:block">{t.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tab panels */}
+              {activeTab === "overview" && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  {/* Left: Price + Chart */}
+                  <div className="lg:col-span-2 space-y-4">
+                    <PriceCard quote={quote!} info={info} loading={loadingQuote && !quote} />
+                    <StockChart
+                      data={history}
+                      period={period}
+                      onPeriodChange={setPeriod}
+                      loading={loadingHistory && history.length === 0}
+                      ticker={ticker}
+                    />
+                  </div>
+                  {/* Right: Advice & Insight */}
+                  <div className="space-y-4">
+                    <AdvicePanel data={advice} loading={loadingAdvice && !advice} />
+                    <InsightPanel data={insight} loading={loadingInsight && !insight} />
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "indicators" && (
+                <div>
+                  <IndicatorPanel data={indicators} loading={loadingIndicators && !indicators} />
+                </div>
+              )}
+
+              {activeTab === "forecast" && (
+                <div>
+                  <ForecastChart data={forecast} loading={loadingForecast && !forecast} />
+                </div>
+              )}
+
+              {activeTab === "news" && (
+                <div>
+                  <NewsPanel news={news} loading={loadingNews && news.length === 0} />
+                </div>
+              )}
+            </>
+          )}
+        </main>
+      </div>
+
+      {/* ── Footer ─────────────────────── */}
+      <footer className="app-footer py-4 px-6 text-xs">
+        <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-3">
+          <div>
+            © 2025 FinAdvisor Technologies Inc. &nbsp;·&nbsp; Data Disclaimer &nbsp;·&nbsp; Privacy
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 live-pulse" />
+            <span className="font-medium">WebSocket Feed: 42ms latency</span>
           </div>
         </div>
-      </header>
-
-      {/* ── Main ─────────────────────────────────────── */}
-      <main className="max-w-screen-xl mx-auto px-4 pb-12">
-        {!ticker ? (
-          <WelcomeScreen onSelect={handleSelect} />
-        ) : (
-          <>
-            {/* Error Banner */}
-            {error && (
-              <div className="mt-4 p-4 rounded-xl bg-[rgba(255,77,109,0.1)] border border-[rgba(255,77,109,0.3)] text-[#ff4d6d] text-sm">
-                ⚠️ {error}
-              </div>
-            )}
-
-            {/* Ticker header */}
-            <div className="flex items-center justify-between mt-6 mb-4 flex-wrap gap-2">
-              <div>
-                <h1 className="text-2xl font-black text-[var(--text-primary)]">{ticker}</h1>
-                <p className="text-[var(--text-secondary)] text-sm">{tickerName}</p>
-              </div>
-              {/* Tabs */}
-              <div className="flex gap-1 bg-[rgba(255,255,255,0.03)] rounded-xl p-1">
-                {TABS.map((t) => (
-                  <button
-                    key={t.id}
-                    id={`tab-${t.id}`}
-                    onClick={() => setActiveTab(t.id)}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${activeTab === t.id
-                      ? "tab-active"
-                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                      }`}
-                  >
-                    {t.icon}
-                    <span className="hidden sm:block">{t.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Tab panels */}
-            {activeTab === "overview" && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 slide-up">
-                {/* Left: Price + Chart */}
-                <div className="lg:col-span-2 space-y-4">
-                  <PriceCard quote={quote!} info={info} loading={loadingQuote && !quote} />
-                  <StockChart
-                    data={history}
-                    period={period}
-                    onPeriodChange={setPeriod}
-                    loading={loadingHistory && history.length === 0}
-                    ticker={ticker}
-                  />
-                </div>
-                {/* Right: Advice & Insight */}
-                <div className="space-y-4">
-                  <AdvicePanel data={advice} loading={loadingAdvice && !advice} />
-                  <InsightPanel data={insight} loading={loadingInsight && !insight} />
-                </div>
-              </div>
-            )}
-
-            {activeTab === "indicators" && (
-              <div className="slide-up">
-                <IndicatorPanel data={indicators} loading={loadingIndicators && !indicators} />
-              </div>
-            )}
-
-            {activeTab === "forecast" && (
-              <div className="slide-up">
-                <ForecastChart data={forecast} loading={loadingForecast && !forecast} />
-              </div>
-            )}
-
-            {activeTab === "news" && (
-              <div className="slide-up">
-                <NewsPanel news={news} loading={loadingNews && news.length === 0} />
-              </div>
-            )}
-          </>
-        )}
-      </main>
+      </footer>
     </div>
   );
 }
 
-// ── Welcome Screen ────────────────────────────
+// ── Hero / Welcome Screen ────────────
 function WelcomeScreen({ onSelect }: { onSelect: (s: string, n: string) => void }) {
   const FEATURED = [
-    { symbol: "AAPL", name: "Apple Inc.", change: "+0.85%" },
-    { symbol: "TSLA", name: "Tesla, Inc.", change: "+2.14%" },
-    { symbol: "NVDA", name: "NVIDIA Corp.", change: "+1.56%" },
-    { symbol: "MSFT", name: "Microsoft", change: "+0.43%" },
-    { symbol: "GOOGL", name: "Alphabet", change: "-0.28%" },
-    { symbol: "AMZN", name: "Amazon", change: "+1.02%" },
+    { symbol: "AAPL", name: "Apple Inc.", price: "$189.84", change: "+0.85%", isUp: true },
+    { symbol: "TSLA", name: "Tesla, Inc.", price: "$248.50", change: "+2.14%", isUp: true },
+    { symbol: "NVDA", name: "NVIDIA Corp.", price: "$128.92", change: "+1.56%", isUp: true },
+    { symbol: "MSFT", name: "Microsoft", price: "$449.78", change: "+0.43%", isUp: true },
+    { symbol: "GOOGL", name: "Alphabet", price: "$177.30", change: "-0.28%", isUp: false },
+    { symbol: "AMZN", name: "Amazon", price: "$186.40", change: "+1.02%", isUp: true },
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-120px)] px-4 text-center">
-      {/* Hero */}
-      <div className="mb-3">
-        <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[var(--accent-blue)] to-[var(--accent-cyan)] flex items-center justify-center mx-auto mb-6 shadow-2xl" style={{ boxShadow: "0 0 60px rgba(79,128,255,0.4)" }}>
-          <TrendingUp size={36} className="text-white" />
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-140px)] py-8 px-4 text-center">
+      {/* Central Glowing Icon Box */}
+      <div className="mb-4">
+        <div className="w-16 h-16 rounded-2xl cyan-neon-box flex items-center justify-center mx-auto mb-6">
+          <TrendingUp size={32} className="text-white" />
         </div>
-        <h1 className="text-5xl sm:text-6xl font-black mb-3 gradient-text">FinAdvisor</h1>
-        <p className="text-lg text-[var(--text-secondary)] max-w-lg mx-auto leading-relaxed">
+
+        {/* Main Title */}
+        <h1 className="text-5xl sm:text-6xl font-black mb-4 glow-title tracking-tight">
+          FinAdvisor
+        </h1>
+
+        {/* Subtitle */}
+        <p className="text-base sm:text-lg hero-subtitle max-w-xl mx-auto leading-relaxed font-normal">
           AI-powered stock analysis with real-time quotes, technical indicators, and Buy/Hold/Sell signals.
         </p>
       </div>
 
-      {/* Features */}
-      <div className="flex flex-wrap justify-center gap-3 mb-10">
-        {["📈 Real-Time Quotes", "🤖 AI Signals", "📊 RSI · MACD · MA", "🔮 Price Forecast", "📰 Latest News"].map((f) => (
-          <span key={f} className="text-sm px-3 py-1.5 rounded-full bg-[rgba(79,128,255,0.1)] border border-[rgba(79,128,255,0.2)] text-[var(--text-secondary)]">
-            {f}
-          </span>
+      {/* Feature Badges Row */}
+      <div className="flex flex-wrap justify-center gap-2.5 my-6">
+        {[
+          { label: "Real-Time Quotes", icon: "📈" },
+          { label: "AI Signals", icon: "🤖" },
+          { label: "RSI · MACD · MA", icon: "🚦" },
+          { label: "Price Forecast", icon: "🔮" },
+          { label: "Latest News", icon: "📰" },
+        ].map((f) => (
+          <div
+            key={f.label}
+            className="flex items-center gap-1.5 text-xs px-4 py-1.5 rounded-full feature-pill font-semibold transition-colors"
+          >
+            <span>{f.icon}</span>
+            <span>{f.label}</span>
+          </div>
         ))}
       </div>
 
-      {/* Featured tickers */}
-      <div className="w-full max-w-2xl">
-        <p className="text-sm text-[var(--text-secondary)] mb-3 font-medium">Quick Select</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      {/* Quick Select Section */}
+      <div className="w-full max-w-4xl mt-4">
+        <p className="text-xs font-semibold opacity-60 uppercase tracking-[0.2em] mb-6">
+          QUICK SELECT
+        </p>
+
+        {/* 6 Quick Select Cards Grid (3 columns x 2 rows) */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {FEATURED.map((f) => (
             <button
               key={f.symbol}
               id={`quick-${f.symbol}`}
               onClick={() => onSelect(f.symbol, f.name)}
-              className="glass-card p-4 text-left hover:scale-[1.02] active:scale-[0.98] transition-transform duration-150 cursor-pointer"
+              className="quick-card rounded-xl p-5 text-left transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[100px] group"
             >
-              <div className="font-black text-[var(--accent-blue)] text-lg mono">{f.symbol}</div>
-              <div className="text-xs text-[var(--text-secondary)] truncate">{f.name}</div>
-              <div className={`text-sm font-bold mt-1 ${f.change.startsWith("+") ? "price-up" : "price-down"}`}>
-                {f.change}
+              <div>
+                <div className="font-mono font-bold quick-card-symbol text-lg group-hover:text-blue-500 transition-colors">
+                  {f.symbol}
+                </div>
+                <div className="text-xs quick-card-name font-normal truncate mt-0.5">
+                  {f.name}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-black/10 dark:border-white/10">
+                <span className="font-bold quick-card-price text-base font-mono">
+                  {f.price}
+                </span>
+                <span
+                  className={`text-xs font-semibold font-mono ${
+                    f.isUp ? "quick-badge-up" : "quick-badge-down"
+                  }`}
+                >
+                  {f.change}
+                </span>
               </div>
             </button>
           ))}

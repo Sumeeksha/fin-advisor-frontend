@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Search, TrendingUp, X, Clock } from "lucide-react";
+import { Search, TrendingUp, X, Clock, Command } from "lucide-react";
 import { api, SearchResult } from "@/lib/api";
 
 interface SearchBarProps {
@@ -11,12 +11,10 @@ interface SearchBarProps {
 const POPULAR = [
   { symbol: "AAPL", name: "Apple Inc." },
   { symbol: "TSLA", name: "Tesla, Inc." },
+  { symbol: "NVDA", name: "NVIDIA Corp." },
   { symbol: "MSFT", name: "Microsoft Corp." },
   { symbol: "GOOGL", name: "Alphabet Inc." },
   { symbol: "AMZN", name: "Amazon.com, Inc." },
-  { symbol: "NVDA", name: "NVIDIA Corp." },
-  { symbol: "META", name: "Meta Platforms" },
-  { symbol: "NFLX", name: "Netflix, Inc." },
 ];
 
 export default function SearchBar({ onSelect }: SearchBarProps) {
@@ -85,6 +83,19 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
     }
   };
 
+  // Keyboard shortcut (⌘K or Ctrl+K) to focus search
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        inputRef.current?.focus();
+        setOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+  }, []);
+
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -102,49 +113,58 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
   const showDropdown = open && (query ? results.length > 0 || loading : recent.length > 0 || POPULAR.length > 0);
 
   return (
-    <div className="relative w-full max-w-2xl mx-auto">
-      {/* Input */}
+    <div className="relative w-full max-w-xl mx-auto">
+      {/* Input Field matching screenshot */}
       <div className="relative group">
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] group-focus-within:text-[var(--accent-blue)] transition-colors">
-          <Search size={20} />
+        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 opacity-60 group-focus-within:opacity-100 group-focus-within:text-blue-500 transition-colors">
+          <Search size={16} />
         </div>
         <input
           ref={inputRef}
           id="stock-search"
           type="text"
           value={query}
+          placeholder="Search ticker, company or AI signal..."
           onChange={(e) => { setQuery(e.target.value); setOpen(true); setActiveIndex(-1); }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          className="w-full pl-12 pr-12 py-4 rounded-2xl text-base font-medium outline-none transition-all duration-300 bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:border-[var(--accent-blue)] hover:border-[var(--border-hover)] shadow-sm"
+          className="w-full pl-10 pr-12 py-2 rounded-full text-xs font-medium outline-none transition-all duration-200 search-input-field focus:border-blue-500 shadow-inner"
         />
+        
+        {/* Command shortcut badge ⌘K */}
+        {!query && !loading && (
+          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 rounded search-result-badge text-[10px] font-mono pointer-events-none shadow-sm">
+            <Command size={10} />
+            <span>K</span>
+          </div>
+        )}
+
         {query && (
           <button
             onClick={() => { setQuery(""); setResults([]); inputRef.current?.focus(); }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-colors"
           >
-            <X size={18} />
+            <X size={15} />
           </button>
         )}
+        
         {loading && (
-          <div className="absolute right-4 top-1/2 -translate-y-1/2">
-            <div className="w-5 h-5 rounded-full border-2 border-[var(--accent-blue)] border-t-transparent animate-spin" />
+          <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+            <div className="w-4 h-4 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
           </div>
         )}
       </div>
 
-      {/* Dropdown */}
+      {/* Search Dropdown */}
       {showDropdown && (
         <div
           ref={dropdownRef}
-          className="absolute top-full left-0 right-0 mt-2 glass-card overflow-hidden z-50 shadow-2xl slide-up"
-          style={{ boxShadow: "0 20px 60px rgba(0,0,0,0.6), 0 0 30px rgba(79,128,255,0.1)" }}
+          className="absolute top-full left-0 right-0 mt-2 search-dropdown-container rounded-2xl overflow-hidden z-50 shadow-2xl backdrop-blur-xl"
         >
-          {/* Recent / Search results */}
           {!query && recent.length > 0 && (
-            <div className="px-4 py-3 border-b border-[var(--border-color)]">
-              <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
-                <Clock size={12} /> Recent
+            <div className="px-4 py-2.5 border-b border-black/10 dark:border-white/10">
+              <div className="flex items-center gap-1.5 text-[10px] font-semibold opacity-60 uppercase tracking-wider mb-2">
+                <Clock size={11} /> Recent
               </div>
               {recent.map((r, i) => (
                 <ResultRow
@@ -160,19 +180,19 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
           )}
 
           {!query && (
-            <div className="px-4 py-3">
-              <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
-                <TrendingUp size={12} /> Popular
+            <div className="px-4 py-2.5">
+              <div className="flex items-center gap-1.5 text-[10px] font-semibold opacity-60 uppercase tracking-wider mb-2">
+                <TrendingUp size={11} /> Popular
               </div>
               <div className="grid grid-cols-2 gap-1">
                 {POPULAR.map((p) => (
                   <button
                     key={p.symbol}
                     onClick={() => handleSelect(p.symbol, p.name)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[rgba(79,128,255,0.1)] transition-colors text-left"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg search-row-hover transition-colors text-left"
                   >
-                    <span className="font-mono font-bold text-sm text-[var(--accent-blue)]">{p.symbol}</span>
-                    <span className="text-xs text-[var(--text-secondary)] truncate">{p.name}</span>
+                    <span className="font-mono font-bold text-xs search-result-symbol">{p.symbol}</span>
+                    <span className="text-xs search-result-name truncate">{p.name}</span>
                   </button>
                 ))}
               </div>
@@ -204,19 +224,20 @@ function ResultRow({
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left hover:bg-[rgba(79,128,255,0.1)] ${active ? "bg-[rgba(79,128,255,0.15)]" : ""
-        }`}
+      className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors text-left search-row-hover ${
+        active ? "bg-blue-500/10" : ""
+      }`}
     >
-      <div className="w-10 h-10 rounded-xl bg-[rgba(79,128,255,0.15)] flex items-center justify-center flex-shrink-0">
-        <span className="text-xs font-bold text-[var(--accent-blue)]">{symbol.slice(0, 3)}</span>
+      <div className="w-8 h-8 rounded-lg search-avatar-box flex items-center justify-center flex-shrink-0">
+        <span className="text-xs font-bold">{symbol.slice(0, 3)}</span>
       </div>
       <div className="flex-1 min-w-0">
-        <div className="font-bold text-sm text-[var(--text-primary)]">{symbol}</div>
-        <div className="text-xs text-[var(--text-secondary)] truncate">{name}</div>
+        <div className="font-bold text-xs search-result-symbol">{symbol}</div>
+        <div className="text-[11px] search-result-name truncate">{name}</div>
       </div>
-      <div className="flex flex-col items-end gap-1 flex-shrink-0">
-        {type && <span className="text-xs px-2 py-0.5 rounded bg-[rgba(255,255,255,0.05)] text-[var(--text-secondary)]">{type}</span>}
-        {exchange && <span className="text-xs text-[var(--text-secondary)]">{exchange}</span>}
+      <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
+        {type && <span className="text-[10px] px-2 py-0.5 rounded-full search-result-badge font-medium">{type}</span>}
+        {exchange && <span className="text-[10px] opacity-60">{exchange}</span>}
       </div>
     </button>
   );
