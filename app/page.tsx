@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   api,
-  QuoteData, OHLCVBar, IndicatorData, AdviceData, ForecastData, NewsItem, CompanyInfo,
+  QuoteData, OHLCVBar, IndicatorData, AdviceData, ForecastData, NewsItem, CompanyInfo, InsightData
 } from "@/lib/api";
 
 import SearchBar from "@/components/SearchBar";
