@@ -20,7 +20,7 @@ export default function NewsPanel({ news, loading }: NewsPanelProps) {
     <div className="glass-card p-6">
       <div className="flex items-center gap-2 mb-4">
         <Newspaper size={18} className="text-[var(--accent-blue)]" />
-        <h3 className="font-bold text-[var(--text-primary)]">Latest News</h3>
+        <h3 className="font-bold text-[var(--text-primary)]">Financials & SEC Filings</h3>
         <span className="text-xs px-2 py-0.5 rounded bg-[rgba(79,128,255,0.15)] text-[var(--accent-blue)]">
           {news.length}
         </span>

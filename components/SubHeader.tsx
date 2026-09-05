@@ -1,13 +1,12 @@
 "use client";
 
-import { Activity, BarChart2, Cpu, FileText, Newspaper, PieChart, MessageSquare } from "lucide-react";
+import { Activity, BarChart2, Cpu, FileText, PieChart, MessageSquare } from "lucide-react";
 
 export type SubTabId =
   | "overview"
   | "indicators"
   | "forecast"
   | "chat"
-  | "financials"
   | "news"
   | "options";
 
@@ -21,8 +20,8 @@ const TABS: { id: SubTabId; label: string; icon: React.ElementType }[] = [
   { id: "indicators", label: "Technical Indicators", icon: BarChart2 },
   { id: "forecast", label: "AI Forecast & Valuation", icon: Cpu },
   { id: "chat", label: "AI Copilot & Simulator", icon: MessageSquare },
-  { id: "financials", label: "Financials & SEC Filings", icon: FileText },
-  { id: "news", label: "News & Sentiment", icon: Newspaper },
+
+  { id: "news", label: "Financials & SEC Filings", icon: FileText },
   { id: "options", label: "Options Flow & Dark Pool", icon: PieChart },
 ];
 

@@ -347,15 +347,8 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {activeTab === "financials" && (
-                <div className="glass-card p-6 text-center py-12">
-                  <Cpu size={32} className="mx-auto text-[var(--accent-cyan)] mb-3" />
-                  <h3 className="text-lg font-bold">SEC 10-K & 10-Q Financial Filings Feed</h3>
-                  <p className="text-xs text-[var(--text-secondary)] mt-1">
-                    Real-time automated SEC EDGAR parsing enabled for {ticker}.
-                  </p>
-                </div>
-              )}
+
+
 
               {activeTab === "options" && (
                 <div className="glass-card p-6 text-center py-12">
@@ -454,7 +447,7 @@ function WelcomeScreen({ onSelect }: { onSelect: (s: string, n: string) => void 
           { label: "AI Signals", icon: "🤖" },
           { label: "RSI · MACD · MA", icon: "🚦" },
           { label: "Price Forecast", icon: "🔮" },
-          { label: "Latest News", icon: "📰" },
+          { label: "Financials & SEC fillings", icon: "📰" },
         ].map((f) => (
           <div
             key={f.label}
@@ -496,11 +489,10 @@ function WelcomeScreen({ onSelect }: { onSelect: (s: string, n: string) => void 
                   {f.price}
                 </span>
                 <span
-                  className={`text-xs font-semibold font-mono px-2 py-0.5 rounded ${
-                    f.isUp
+                  className={`text-xs font-semibold font-mono px-2 py-0.5 rounded ${f.isUp
                       ? "bg-[rgba(16,217,138,0.15)] text-[#10d98a]"
                       : "bg-[rgba(255,77,109,0.15)] text-[#ff4d6d]"
-                  }`}
+                    }`}
                 >
                   {f.change}
                 </span>
