@@ -18,7 +18,7 @@ import {
 import { Line, Bar } from "react-chartjs-2";
 import "chartjs-adapter-date-fns";
 import { OHLCVBar } from "@/lib/api";
-import { LineChart, CandlestickChart, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
+import { LineChart, CandlestickChart, ZoomIn, ZoomOut, RotateCcw, ArrowUpDown, ArrowLeftRight, Maximize2 } from "lucide-react";
 
 ChartJS.register(
   CategoryScale,
@@ -53,6 +53,7 @@ export default function StockChart({
   const [showVolume, setShowVolume] = useState(true);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomReady, setZoomReady] = useState(false);
+  const [zoomAxis, setZoomAxis] = useState<"xy" | "x" | "y">("xy");
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const chartRef = useRef<any>(null);
@@ -75,7 +76,7 @@ export default function StockChart({
   const isPositive = prices.length > 1 && prices[prices.length - 1] >= prices[0];
   const lineColor = isPositive ? "#10d98a" : "#ff4d6d";
 
-  // Reset zoom when ticker, period, or chart type changes
+  // Reset zoom when ticker, period, chart type, or zoomAxis changes
   useEffect(() => {
     if (chartRef.current) {
       try {
@@ -125,7 +126,7 @@ export default function StockChart({
     return {
       pan: {
         enabled: true,
-        mode: "x" as const,
+        mode: zoomAxis,
         onPanComplete: () => setIsZoomed(true),
       },
       zoom: {
@@ -136,11 +137,11 @@ export default function StockChart({
         pinch: {
           enabled: true,
         },
-        mode: "x" as const,
+        mode: zoomAxis,
         onZoomComplete: () => setIsZoomed(true),
       },
     };
-  }, []);
+  }, [zoomAxis]);
 
   // Line chart configuration
   const lineChartData = useMemo(() => {
@@ -215,8 +216,8 @@ export default function StockChart({
             callback: (v) => `$${Number(v).toFixed(0)}`,
           },
           border: { color: "rgba(99,130,255,0.1)" },
-          min: minPrice - pricePad,
-          max: maxPrice + pricePad,
+          suggestedMin: minPrice - pricePad,
+          suggestedMax: maxPrice + pricePad,
         },
       },
     };
@@ -313,8 +314,8 @@ export default function StockChart({
             callback: (v) => `$${Number(v).toFixed(0)}`,
           },
           border: { color: "rgba(99,130,255,0.1)" },
-          min: minPrice - pricePad,
-          max: maxPrice + pricePad,
+          suggestedMin: minPrice - pricePad,
+          suggestedMax: maxPrice + pricePad,
         },
       },
     };
@@ -435,6 +436,52 @@ export default function StockChart({
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
+          {/* Zoom Axis Mode Selector: Both (XY), Time (X), Price (Y) */}
+          <div className="flex items-center gap-1 bg-[rgba(255,255,255,0.03)] border border-[var(--border-color)] rounded-xl p-1 shadow-sm">
+            <button
+              id="zoom-axis-xy"
+              type="button"
+              onClick={() => setZoomAxis("xy")}
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                zoomAxis === "xy"
+                  ? "tab-active bg-[rgba(79,128,255,0.2)] text-[var(--accent-blue)]"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              }`}
+              title="Zoom both Time (X) and Price (Y) axes simultaneously"
+            >
+              <Maximize2 size={13} />
+              <span className="hidden sm:inline">Both</span>
+            </button>
+            <button
+              id="zoom-axis-x"
+              type="button"
+              onClick={() => setZoomAxis("x")}
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                zoomAxis === "x"
+                  ? "tab-active bg-[rgba(79,128,255,0.2)] text-[var(--accent-blue)]"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              }`}
+              title="Zoom horizontal Time axis only"
+            >
+              <ArrowLeftRight size={13} />
+              <span className="hidden sm:inline">Time (X)</span>
+            </button>
+            <button
+              id="zoom-axis-y"
+              type="button"
+              onClick={() => setZoomAxis("y")}
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                zoomAxis === "y"
+                  ? "tab-active bg-[rgba(79,128,255,0.2)] text-[var(--accent-blue)]"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              }`}
+              title="Zoom vertical Price axis (right scale) only"
+            >
+              <ArrowUpDown size={13} />
+              <span className="hidden sm:inline">Price (Y)</span>
+            </button>
+          </div>
+
           {/* Zoom In / Zoom Out / Reset Zoom Controls */}
           <div className="flex items-center gap-1 bg-[rgba(255,255,255,0.03)] border border-[var(--border-color)] rounded-xl p-1 shadow-sm">
             <button
@@ -552,12 +599,12 @@ export default function StockChart({
       )}
 
       {/* Helpful Hint Footer */}
-      <div className="mt-3 flex items-center justify-between text-[11px] text-[var(--text-secondary)]">
-        <span>💡 Scroll/pinch on graph or use Zoom buttons (+ / -) • Drag to pan timeline</span>
+      <div className="mt-3 flex items-center justify-between text-[11px] text-[var(--text-secondary)] flex-wrap gap-2">
+        <span>💡 Scroll/pinch on graph or use Zoom (+ / -) • Select <b>Both / Time (X) / Price (Y)</b> to change zoom mode • Drag to pan</span>
         {isZoomed && (
           <button
             onClick={handleResetZoom}
-            className="text-[var(--accent-cyan)] hover:underline cursor-pointer"
+            className="text-[var(--accent-cyan)] hover:underline cursor-pointer font-bold"
           >
             Reset view
           </button>
