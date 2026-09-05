@@ -200,87 +200,96 @@ export default function DashboardPage() {
       <div>
         {/* ── Top Header ────────────────────────── */}
         <header className="sticky top-0 z-40 app-header backdrop-blur-xl transition-colors duration-300">
-          <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-4 flex-wrap sm:flex-nowrap">
-            
-            {/* Logo & Ticker Tape */}
-            <div className="flex items-center gap-4 flex-shrink-0">
-              <button
-                onClick={() => setTicker(null)}
-                className="flex items-center gap-2.5 cursor-pointer hover:opacity-90 transition-opacity"
-              >
-                <div className="w-7 h-7 rounded-lg app-logo-icon flex items-center justify-center">
-                  <TrendingUp size={16} className="text-white" />
-                </div>
-                <span className="text-xl font-black app-logo-text tracking-tight">FinAdvisor</span>
-              </button>
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-2.5">
+            {/* Main Bar: Logo on left, Controls on right, Search in middle on desktop */}
+            <div className="flex items-center justify-between gap-3">
+              
+              {/* 1. Logo & Market Status Badge */}
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <button
+                  onClick={() => setTicker(null)}
+                  className="flex items-center gap-2 cursor-pointer hover:opacity-90 transition-opacity"
+                >
+                  <div className="w-7 h-7 rounded-lg app-logo-icon flex items-center justify-center shrink-0">
+                    <TrendingUp size={16} className="text-white" />
+                  </div>
+                  <span className="text-lg sm:text-xl font-black app-logo-text tracking-tight">FinAdvisor</span>
+                </button>
 
-              {/* Ticker status badge */}
-              <div className="hidden lg:flex items-center gap-2 text-xs market-status-badge px-3 py-1 rounded-full font-medium">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 live-pulse" />
-                <span className="font-semibold">US Markets Open</span>
-                <span className="opacity-40">|</span>
-                <span className="font-mono">SPY <span className="text-emerald-500 font-semibold">+0.64%</span></span>
-                <span className="font-mono">QQQ <span className="text-emerald-500 font-semibold">+1.12%</span></span>
+                {/* Ticker status badge (Desktop only) */}
+                <div className="hidden lg:flex items-center gap-2 text-xs market-status-badge px-3 py-1 rounded-full font-medium">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 live-pulse" />
+                  <span className="font-semibold">US Markets Open</span>
+                  <span className="opacity-40">|</span>
+                  <span className="font-mono">SPY <span className="text-emerald-500 font-semibold">+0.64%</span></span>
+                  <span className="font-mono">QQQ <span className="text-emerald-500 font-semibold">+1.12%</span></span>
+                </div>
+              </div>
+
+              {/* 2. Desktop Search Bar (Hidden on mobile <sm, centered on sm+) */}
+              <div className="hidden sm:block flex-1 min-w-[200px] max-w-xl mx-3">
+                <SearchBar onSelect={handleSelect} />
+              </div>
+
+              {/* 3. Right Controls: Refresh + ThemeToggle + User Profile */}
+              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                {ticker && (
+                  <button
+                    id="refresh-btn"
+                    onClick={handleRefresh}
+                    disabled={loadingQuote}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium market-status-badge transition-all"
+                    title="Refresh data"
+                  >
+                    <RefreshCw size={13} className={loadingQuote ? "animate-spin" : ""} />
+                    <span className="hidden md:block">
+                      {lastUpdated ? `${formatTime(lastUpdated)}` : "Refresh"}
+                    </span>
+                  </button>
+                )}
+
+                <ThemeToggle />
+
+                {/* User Auth Control Pill */}
+                {user ? (
+                  <div className="flex items-center gap-2 market-status-badge px-2.5 sm:px-3 py-1 rounded-xl">
+                    {user.picture ? (
+                      <img
+                        src={user.picture}
+                        alt={user.name || "User Avatar"}
+                        className="w-5 h-5 rounded-full ring-2 ring-blue-500 shrink-0"
+                      />
+                    ) : (
+                      <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+                        {user.name ? user.name[0].toUpperCase() : "U"}
+                      </div>
+                    )}
+                    <span className="text-xs font-medium max-w-[90px] truncate hidden md:inline">
+                      {user.name || user.email}
+                    </span>
+                    <button
+                      onClick={handleLogout}
+                      title="Sign Out"
+                      className="opacity-70 hover:opacity-100 hover:text-rose-400 p-0.5 transition-colors"
+                    >
+                      <LogOut size={13} />
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-lg shadow-blue-600/20 transition-all"
+                  >
+                    <LogIn size={14} />
+                    <span className="hidden xs:inline">Sign In</span>
+                  </Link>
+                )}
               </div>
             </div>
 
-            {/* Search Bar */}
-            <div className="flex-1 min-w-[220px] max-w-xl">
+            {/* Mobile Search Bar (Full-width clean row directly under logo and controls on mobile <sm) */}
+            <div className="block sm:hidden mt-2 pt-1 border-t border-black/5 dark:border-white/5">
               <SearchBar onSelect={handleSelect} />
-            </div>
-
-            {/* Right Controls: Refresh + Dark Mode Toggle + Sign In */}
-            <div className="flex items-center gap-3 flex-shrink-0 ml-auto sm:ml-0">
-              {ticker && (
-                <button
-                  id="refresh-btn"
-                  onClick={handleRefresh}
-                  disabled={loadingQuote}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium market-status-badge transition-all"
-                >
-                  <RefreshCw size={13} className={loadingQuote ? "animate-spin" : ""} />
-                  <span className="hidden sm:block">
-                    {lastUpdated ? `${formatTime(lastUpdated)}` : "Refresh"}
-                  </span>
-                </button>
-              )}
-
-              <ThemeToggle />
-
-              {/* User Auth Control Pill */}
-              {user ? (
-                <div className="flex items-center gap-2 market-status-badge px-3 py-1 rounded-xl">
-                  {user.picture ? (
-                    <img
-                      src={user.picture}
-                      alt={user.name || "User Avatar"}
-                      className="w-5 h-5 rounded-full ring-2 ring-blue-500 shrink-0"
-                    />
-                  ) : (
-                    <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
-                      {user.name ? user.name[0].toUpperCase() : "U"}
-                    </div>
-                  )}
-                  <span className="text-xs font-medium max-w-[90px] truncate hidden md:inline">
-                    {user.name || user.email}
-                  </span>
-                  <button
-                    onClick={handleLogout}
-                    title="Sign Out"
-                    className="opacity-70 hover:opacity-100 hover:text-rose-400 p-0.5 transition-colors"
-                  >
-                    <LogOut size={13} />
-                  </button>
-                </div>
-              ) : (
-                <Link
-                  href="/login"
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-lg shadow-blue-600/20 transition-all"
-                >
-                  <LogIn size={14} />
-                  <span>Sign In</span>
-                </Link>
-              )}
             </div>
           </div>
         </header>
