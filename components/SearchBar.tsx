@@ -113,7 +113,7 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
   const showDropdown = open && (query ? results.length > 0 || loading : recent.length > 0 || POPULAR.length > 0);
 
   return (
-    <div className="relative w-full max-w-xl mx-auto">
+    <div className="relative w-full max-w-full mx-auto">
       {/* Input Field matching screenshot */}
       <div className="relative group">
         <div className="absolute left-3.5 top-1/2 -translate-y-1/2 opacity-60 group-focus-within:opacity-100 group-focus-within:text-blue-500 transition-colors">
@@ -133,7 +133,7 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
         
         {/* Command shortcut badge ⌘K */}
         {!query && !loading && (
-          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 rounded search-result-badge text-[10px] font-mono pointer-events-none shadow-sm">
+          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-0.5 px-1.5 py-0.5 rounded search-result-badge text-[10px] font-mono pointer-events-none shadow-sm">
             <Command size={10} />
             <span>K</span>
           </div>
@@ -142,7 +142,7 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
         {query && (
           <button
             onClick={() => { setQuery(""); setResults([]); inputRef.current?.focus(); }}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-colors"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-colors p-1"
           >
             <X size={15} />
           </button>
@@ -159,7 +159,7 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
       {showDropdown && (
         <div
           ref={dropdownRef}
-          className="absolute top-full left-0 right-0 mt-2 search-dropdown-container rounded-2xl overflow-hidden z-50 shadow-2xl backdrop-blur-xl"
+          className="absolute top-full left-0 right-0 mt-2 search-dropdown-container rounded-2xl overflow-hidden z-50 shadow-2xl backdrop-blur-xl max-h-[60vh] overflow-y-auto"
         >
           {!query && recent.length > 0 && (
             <div className="px-4 py-2.5 border-b border-black/10 dark:border-white/10">

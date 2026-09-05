@@ -344,6 +344,17 @@ body {
 ::-webkit-scrollbar-thumb { background: rgba(0, 229, 255, 0.25); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(0, 229, 255, 0.5); }
 
+/* ── No Scrollbar Utility ───────────────────── */
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar,
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* ── Signal Badges ───────────────────────── */
 .signal-buy {
   background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.05));

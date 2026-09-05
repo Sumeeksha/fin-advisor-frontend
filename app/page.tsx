@@ -254,7 +254,7 @@ export default function DashboardPage() {
         {ticker && <SubHeader activeTab={activeTab} onTabChange={setActiveTab} />}
 
         {/* ── Main Container ── */}
-        <main className="max-w-[1700px] mx-auto px-4 py-6">
+        <main className="max-w-[1700px] mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6">
           {!ticker ? (
             /* Home Page Welcome Screen matching original design */
             <WelcomeScreen onSelect={handleSelectTicker} />
