@@ -379,3 +379,16 @@ body {
 .mono {
   font-family: 'JetBrains Mono', monospace;
 }
+
+/* ── Timezone Dropdown Solid Theme Panel ────────── */
+.timezone-dropdown-panel {
+  background-color: #0a1026 !important;
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 212, 255, 0.15);
+}
+
+[data-theme="light"] .timezone-dropdown-panel, .light .timezone-dropdown-panel {
+  background-color: #ffffff !important;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}

@@ -62,7 +62,27 @@ export default function DashboardPage() {
 
   const handleLogout = () => {
     clearSession();
+    try {
+      localStorage.removeItem("fa_active_ticker");
+      localStorage.removeItem("fa_active_ticker_name");
+      const url = new URL(window.location.href);
+      url.searchParams.delete("ticker");
+      url.searchParams.delete("name");
+      window.history.replaceState({}, "", url.toString());
+    } catch { /* ignore */ }
     setUser(null);
+    setTicker(null);
+  };
+
+  const handleGoHome = () => {
+    try {
+      localStorage.removeItem("fa_active_ticker");
+      localStorage.removeItem("fa_active_ticker_name");
+      const url = new URL(window.location.href);
+      url.searchParams.delete("ticker");
+      url.searchParams.delete("name");
+      window.history.replaceState({}, "", url.pathname);
+    } catch { /* ignore */ }
     setTicker(null);
   };
 
@@ -139,7 +159,8 @@ export default function DashboardPage() {
     }
 
     setTicker(symbol);
-    setTickerName(name || symbol);
+    const resolvedName = name || symbol;
+    setTickerName(resolvedName);
     setQuote(null);
     setInfo(null);
     setHistory([]);
@@ -149,6 +170,16 @@ export default function DashboardPage() {
     setNews([]);
     setInsight(null);
     setError(null);
+
+    // Persist active ticker to localStorage and URL
+    try {
+      localStorage.setItem("fa_active_ticker", symbol);
+      localStorage.setItem("fa_active_ticker_name", resolvedName);
+      const url = new URL(window.location.href);
+      url.searchParams.set("ticker", symbol);
+      url.searchParams.set("name", resolvedName);
+      window.history.replaceState({}, "", url.toString());
+    } catch { /* ignore */ }
 
     fetchAll(symbol, selectedModel);
     fetchHistory(symbol, period);
@@ -162,7 +193,7 @@ export default function DashboardPage() {
     }
   };
 
-  // Load user session
+  // Load user session & restore active ticker on reload
   useEffect(() => {
     const storedUser = getStoredUser();
     setUser(storedUser);
@@ -172,12 +203,23 @@ export default function DashboardPage() {
 
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      const initialTicker = params.get("ticker");
-      const initialName = params.get("name") || initialTicker || "";
-      if (initialTicker) {
-        window.history.replaceState({}, "", window.location.pathname);
+      const urlTicker = params.get("ticker");
+      const urlName = params.get("name") || urlTicker || "";
+      const savedTicker = localStorage.getItem("fa_active_ticker");
+      const savedName = localStorage.getItem("fa_active_ticker_name") || savedTicker || "";
+
+      const targetTicker = urlTicker || savedTicker;
+      const targetName = urlName || savedName || targetTicker || "";
+
+      if (targetTicker) {
+        // Keep or sync URL
+        const url = new URL(window.location.href);
+        url.searchParams.set("ticker", targetTicker);
+        if (targetName) url.searchParams.set("name", targetName);
+        window.history.replaceState({}, "", url.toString());
+
         if (storedUser) {
-          handleSelectTicker(initialTicker, initialName);
+          handleSelectTicker(targetTicker, targetName);
         }
       }
     }
@@ -204,7 +246,7 @@ export default function DashboardPage() {
           user={user}
           onLogout={handleLogout}
           onSelectTicker={handleSelectTicker}
-          onGoHome={() => setTicker(null)}
+          onGoHome={handleGoHome}
         />
 
         {/* ── Sub Navigation Header (Shown when viewing ticker) ── */}
@@ -261,7 +303,17 @@ export default function DashboardPage() {
 
               {activeTab === "indicators" && (
                 <div className="space-y-6">
+                  {/* Price Forecast Projections Graph */}
+                  <ForecastChart data={forecast} loading={loadingForecast && !forecast} />
+
+                  {/* Technical Indicators Panel */}
                   <IndicatorPanel data={indicators} loading={loadingIndicators && !indicators} />
+                </div>
+              )}
+
+              {activeTab === "forecast" && (
+                <div className="space-y-6">
+                  {/* Candlestick Chart with Live Forecast Cone & Overlay */}
                   <StockChart
                     data={history}
                     period={period}
@@ -270,19 +322,6 @@ export default function DashboardPage() {
                     ticker={ticker}
                     forecast={forecast}
                     indicators={indicators}
-                  />
-                </div>
-              )}
-
-              {activeTab === "forecast" && (
-                <div className="space-y-6">
-                  <ForecastChart data={forecast} loading={loadingForecast && !forecast} />
-                  <StockChart
-                    data={history}
-                    period={period}
-                    onPeriodChange={setPeriod}
-                    loading={loadingHistory && history.length === 0}
-                    ticker={ticker}
                   />
                 </div>
               )}
@@ -339,16 +378,17 @@ function WelcomeScreen({ onSelect }: { onSelect: (s: string, n: string) => void 
       {/* Central Glowing Icon Box & Title */}
       <div className="mb-6">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="FinAdvisor Logo" className="w-16 h-16 rounded-2xl shadow-[0_0_35px_rgba(0,212,255,0.4)] mx-auto mb-6 object-cover" />
+        <img
+          src="/logo.png"
+          alt="FinAdvisor Logo"
+          className="w-20 h-20 rounded-[22px] shadow-[0_12px_36px_rgba(0,115,255,0.42)] mx-auto mb-6 transition-transform hover:scale-105"
+        />
 
-        {/* Main Title with AI PRO Badge */}
-        <div className="flex items-center justify-center gap-3 mb-4 flex-wrap">
-          <h1 className="text-5xl sm:text-6xl font-black tracking-tight text-[var(--text-primary)]">
-            Fin<span className="text-[var(--accent-cyan)]">Advisor</span>
+        {/* Main Title matching reference screenshot */}
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <h1 className="text-5xl sm:text-6xl font-black tracking-tight text-[#0073ff]">
+            FinAdvisor
           </h1>
-          <span className="text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-[rgba(0,212,255,0.15)] text-[var(--accent-cyan)] border border-[rgba(0,212,255,0.3)]">
-            AI PRO
-          </span>
         </div>
 
         {/* Subtitle */}

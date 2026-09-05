@@ -112,15 +112,14 @@ export default function Navbar({ user, onLogout, onSelectTicker, onGoHome }: Nav
             title="Go to Home Page"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="FinAdvisor Logo" className="w-8 h-8 rounded-xl shadow-[0_0_15px_rgba(0,212,255,0.4)] group-hover:scale-105 transition-transform object-cover" />
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-extrabold text-lg tracking-tight text-[var(--text-primary)]">
-                Fin<span className="text-[var(--accent-cyan)]">Advisor</span>
-              </span>
-              <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-[rgba(0,212,255,0.15)] text-[var(--accent-cyan)] border border-[rgba(0,212,255,0.3)]">
-                AI PRO
-              </span>
-            </div>
+            <img
+              src="/logo.png"
+              alt="FinAdvisor Logo"
+              className="w-7 h-7 rounded-[10px] shadow-[0_4px_14px_rgba(0,115,255,0.35)] group-hover:scale-105 transition-transform"
+            />
+            <span className="font-extrabold text-lg tracking-tight text-[var(--text-primary)]">
+              FinAdvisor
+            </span>
           </button>
         </div>
 
@@ -135,34 +134,36 @@ export default function Navbar({ user, onLogout, onSelectTicker, onGoHome }: Nav
           <span className="hidden sm:block w-px h-5 bg-[var(--border-color)] opacity-60" />
 
           {/* ── 2. Timezone Clock Dropdown ── */}
-          <div className="hidden sm:block relative" ref={dropdownRef}>
+          <div className="hidden sm:block relative inline-block min-w-[215px]" ref={dropdownRef}>
             <button
               type="button"
               onClick={() => setDropdownOpen((o) => !o)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[rgba(0,212,255,0.06)] border border-[rgba(0,212,255,0.2)] text-[var(--accent-cyan)] font-mono hover:bg-[rgba(0,212,255,0.12)] transition-all cursor-pointer select-none"
+              className="w-full flex items-center justify-between gap-2.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[rgba(0,212,255,0.06)] border border-[rgba(0,212,255,0.2)] text-[var(--accent-cyan)] font-mono hover:bg-[rgba(0,212,255,0.12)] transition-all cursor-pointer select-none whitespace-nowrap"
               title="Change timezone"
             >
-              <Clock size={13} />
-              <span className="tabular-nums tracking-tight">{timeStr || "-- : -- : -- --"}</span>
-              <span className="ml-1 text-[9px] font-bold uppercase tracking-wider text-[var(--text-secondary)] font-sans border-l border-[rgba(0,212,255,0.3)] pl-1.5">
-                {selectedTz.label}
-              </span>
-              <ChevronDown
-                size={11}
-                className={`ml-0.5 text-[var(--text-secondary)] transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
-              />
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Clock size={13} className="shrink-0" />
+                <span className="tabular-nums tracking-tight font-mono">{timeStr || "-- : -- : -- --"}</span>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)] font-sans border-l border-[rgba(0,212,255,0.3)] pl-2">
+                  {selectedTz.label}
+                </span>
+                <ChevronDown
+                  size={11}
+                  className={`text-[var(--text-secondary)] transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
+                />
+              </div>
             </button>
 
             {/* Dropdown panel */}
             {dropdownOpen && (
               <div
-                className="absolute left-0 top-[calc(100%+8px)] w-56 rounded-xl border border-[rgba(0,212,255,0.2)] overflow-hidden z-50"
-                style={{
-                  background: "var(--card-bg)",
-                  boxShadow: "0 20px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,212,255,0.08)",
-                }}
+                className="absolute left-0 right-0 top-[calc(100%+8px)] min-w-full w-full rounded-xl overflow-hidden z-[100] timezone-dropdown-panel"
               >
-                <div className="px-3 py-2 border-b border-[var(--border-color)] bg-[rgba(0,212,255,0.05)]">
+                <div
+                  className="px-3 py-2 border-b border-[var(--border-color)] bg-[rgba(0,212,255,0.08)] [data-theme='light']:bg-slate-50"
+                >
                   <p className="text-[10px] font-black uppercase tracking-widest text-[var(--accent-cyan)]">
                     🌐 Market Timezones
                   </p>
