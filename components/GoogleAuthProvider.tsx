@@ -5,7 +5,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
-  "1054326549870-dummyclientid.apps.googleusercontent.com";
+  "87993570672-rqvcluvsbruvmoah9aikk351psopq6rg.apps.googleusercontent.com";
 
 interface Props {
   children: React.ReactNode;
