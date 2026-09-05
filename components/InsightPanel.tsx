@@ -71,7 +71,7 @@ export default function InsightPanel({ data, loading }: InsightPanelProps) {
       </div>
 
       {/* Summary */}
-      <div className="mb-4 p-3 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[var(--border-color)]">
+      <div className="mb-4 p-3 rounded-xl glass-subcard">
         <p className="text-sm text-[var(--text-primary)] leading-relaxed">{summary}</p>
       </div>
 

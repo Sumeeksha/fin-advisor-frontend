@@ -144,7 +144,7 @@ export default function PriceCard({ quote, info, loading }: PriceCardProps) {
 
 function StatItem({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
-    <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3">
+    <div className="glass-subcard rounded-xl p-3">
       <div className="text-xs text-[var(--text-secondary)] mb-1">{label}</div>
       <div className={`font-bold text-sm mono ${color || "text-[var(--text-primary)]"}`}>{value}</div>
     </div>

@@ -112,7 +112,7 @@ export default function AdvicePanel({ data, loading }: AdvicePanelProps) {
                   ? "bg-[rgba(16,217,138,0.06)] border border-[rgba(16,217,138,0.15)]"
                   : r.sentiment === "bearish"
                   ? "bg-[rgba(255,77,109,0.06)] border border-[rgba(255,77,109,0.15)]"
-                  : "bg-[rgba(255,255,255,0.03)] border border-[var(--border-color)]"
+                  : "glass-subcard border border-[var(--border-color)]"
                 }`}
             >
               <span className="text-base flex-shrink-0 mt-0.5">{r.icon}</span>
@@ -139,7 +139,7 @@ export default function AdvicePanel({ data, loading }: AdvicePanelProps) {
       )}
 
       {/* Disclaimer */}
-      <div className="flex items-start gap-2 p-3 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[var(--border-color)]">
+      <div className="flex items-start gap-2 p-3 rounded-xl glass-subcard">
         <AlertTriangle size={14} className="text-[var(--color-neutral)] flex-shrink-0 mt-0.5" />
         <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{disclaimer}</p>
       </div>
@@ -151,7 +151,7 @@ function LevelCard({
   label, value, icon, color
 }: { label: string; value: string; icon: React.ReactNode; color: string }) {
   return (
-    <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3 text-center border border-[var(--border-color)]">
+    <div className="glass-subcard rounded-xl p-3 text-center">
       <div className="flex items-center justify-center gap-1 mb-1" style={{ color }}>
         {icon}
         <span className="text-xs font-semibold">{label}</span>

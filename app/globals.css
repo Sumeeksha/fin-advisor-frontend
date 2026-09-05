@@ -76,7 +76,44 @@ body {
   background-size: 44px 44px;
 }
 
-/* ── Custom Component Theme Utility Classes ────── */
+/* ── Glass Card Outer Rectangular Box Container ────── */
+.glass-card {
+  background-color: rgba(10, 15, 36, 0.85);
+  border: 1px solid rgba(30, 41, 59, 0.9);
+  border-radius: 1rem;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+[data-theme="light"] .glass-card, .light .glass-card {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .glass-card:hover, .light .glass-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.12);
+}
+
+/* ── Glass Sub-card / Inner Stat Card ─────────── */
+.glass-subcard {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="light"] .glass-subcard, .light .glass-subcard {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
 .app-header {
   background-color: rgba(5, 8, 20, 0.85);
   border-bottom: 1px solid rgba(30, 41, 59, 0.8);
