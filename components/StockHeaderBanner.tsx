@@ -10,15 +10,15 @@ interface StockHeaderBannerProps {
 }
 
 export default function StockHeaderBanner({ ticker, quote, info }: StockHeaderBannerProps) {
-  const price = quote?.price ?? 185.63;
-  const change = quote?.change ?? 0.63;
-  const changePct = quote?.change_pct ?? 0.34;
+  const price = quote?.price ?? 0;
+  const change = quote?.change ?? 0;
+  const changePct = quote?.change_pct ?? 0;
   const isPositive = change >= 0;
 
-  const openPrice = quote?.open ?? price * 0.998;
-  const prevClose = quote?.prev_close ?? price - change;
-  const dayHigh = quote?.day_high ?? price * 1.008;
-  const dayLow = quote?.day_low ?? price * 0.991;
+  const openPrice = quote?.open ?? (price ? price * 0.998 : 0);
+  const prevClose = quote?.prev_close ?? (price ? price - change : 0);
+  const dayHigh = quote?.day_high ?? (price ? price * 1.008 : 0);
+  const dayLow = quote?.day_low ?? (price ? price * 0.991 : 0);
   const volume = quote?.volume ?? 42970000;
   const marketCap = quote?.market_cap ?? info?.market_cap ?? 2210000000000;
   const peRatio = info?.pe_ratio ?? 30.2;
@@ -37,7 +37,7 @@ export default function StockHeaderBanner({ ticker, quote, info }: StockHeaderBa
         <div>
           <div className="flex items-center gap-3 mb-1">
             <h1 className="text-3xl font-extrabold text-[var(--text-primary)] tracking-tight">
-              {quote?.name || info?.name || `${ticker} Inc.`} <span className="text-[var(--text-secondary)] font-semibold">({ticker})</span>
+              {(quote?.name && quote.name !== ticker) ? quote.name : (info?.name && info.name !== ticker) ? info.name : ticker} <span className="text-[var(--text-secondary)] font-semibold">({ticker})</span>
             </h1>
             <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[rgba(0,212,255,0.1)] text-[var(--accent-cyan)] border border-[rgba(0,212,255,0.3)]">
               BETA 20D: 1.25 Moderate

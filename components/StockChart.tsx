@@ -96,7 +96,7 @@ export default function StockChart({
   const spotPrice = useMemo(() => {
     if (forecast?.confidence_corridor?.spot) return forecast.confidence_corridor.spot;
     if (data && data.length > 0) return data[data.length - 1].close;
-    return 185.63;
+    return 0;
   }, [data, forecast]);
 
   const projPrice = useMemo(() => {

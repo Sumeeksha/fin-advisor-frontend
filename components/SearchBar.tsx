@@ -110,7 +110,7 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const showDropdown = open && (query ? results.length > 0 || loading : recent.length > 0 || POPULAR.length > 0);
+  const showDropdown = open && (query ? true : recent.length > 0 || POPULAR.length > 0);
 
   return (
     <div className="relative w-full max-w-full mx-auto">
@@ -124,13 +124,13 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
           id="stock-search"
           type="text"
           value={query}
-          placeholder="Search ticker, company or AI signal..."
+          placeholder="Search ticker or company ..."
           onChange={(e) => { setQuery(e.target.value); setOpen(true); setActiveIndex(-1); }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
           className="w-full pl-10 pr-12 py-2 rounded-full text-xs font-medium outline-none transition-all duration-200 search-input-field focus:border-blue-500 shadow-inner"
         />
-        
+
         {/* Command shortcut badge ⌘K */}
         {!query && !loading && (
           <div className="absolute right-3.5 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-0.5 px-1.5 py-0.5 rounded search-result-badge text-[10px] font-mono pointer-events-none shadow-sm">
@@ -147,7 +147,7 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
             <X size={15} />
           </button>
         )}
-        
+
         {loading && (
           <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
             <div className="w-4 h-4 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
@@ -164,7 +164,7 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
           {!query && recent.length > 0 && (
             <div className="px-4 py-2.5 border-b border-black/10 dark:border-white/10">
               <div className="flex items-center gap-1.5 text-[10px] font-semibold opacity-60 uppercase tracking-wider mb-2">
-                <Clock size={11} /> Recent
+                <Clock size={11} /> Recent Searches
               </div>
               {recent.map((r, i) => (
                 <ResultRow
@@ -182,7 +182,7 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
           {!query && (
             <div className="px-4 py-2.5">
               <div className="flex items-center gap-1.5 text-[10px] font-semibold opacity-60 uppercase tracking-wider mb-2">
-                <TrendingUp size={11} /> Popular
+                <TrendingUp size={11} /> Popular Equities
               </div>
               <div className="grid grid-cols-2 gap-1">
                 {POPULAR.map((p) => (
@@ -210,6 +210,13 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
               onClick={() => handleSelect(r.symbol, r.name)}
             />
           ))}
+
+          {query && !loading && results.length === 0 && (
+            <div className="px-4 py-6 text-center text-xs text-[var(--text-secondary)]">
+              <p className="font-bold text-[var(--text-primary)] mb-1">No matching ticker or company found for &quot;{query}&quot;</p>
+              <p className="text-[11px] opacity-70">Try searching by ticker symbol (e.g. &quot;NFLX&quot;) or full company name (e.g. &quot;Netflix&quot;).</p>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -221,19 +228,26 @@ function ResultRow({
 }: {
   symbol: string; name: string; type?: string; exchange?: string; active: boolean; onClick: () => void;
 }) {
+  const displayName = name || symbol;
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors text-left search-row-hover ${
-        active ? "bg-blue-500/10" : ""
-      }`}
+      className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors text-left search-row-hover ${active ? "bg-blue-500/10" : ""
+        }`}
     >
-      <div className="w-8 h-8 rounded-lg search-avatar-box flex items-center justify-center flex-shrink-0">
+      <div className="w-8 h-8 rounded-lg search-avatar-box flex items-center justify-center flex-shrink-0 font-mono">
         <span className="text-xs font-bold">{symbol.slice(0, 3)}</span>
       </div>
       <div className="flex-1 min-w-0">
-        <div className="font-bold text-xs search-result-symbol">{symbol}</div>
-        <div className="text-[11px] search-result-name truncate">{name}</div>
+        <div className="font-bold text-xs text-[var(--text-primary)] flex items-center gap-2 truncate">
+          <span className="truncate">{displayName}</span>
+          <span className="text-[10px] font-mono text-[var(--accent-cyan)] font-extrabold bg-[rgba(0,212,255,0.1)] px-1.5 py-0.5 rounded border border-[rgba(0,212,255,0.25)] shrink-0">
+            {symbol}
+          </span>
+        </div>
+        <div className="text-[11px] search-result-name truncate opacity-80 mt-0.5">
+          {displayName !== symbol ? `${displayName} (${symbol})` : `${symbol} Equity`}
+        </div>
       </div>
       <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
         {type && <span className="text-[10px] px-2 py-0.5 rounded-full search-result-badge font-medium">{type}</span>}

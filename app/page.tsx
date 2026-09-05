@@ -387,14 +387,49 @@ export default function DashboardPage() {
 
 // ── Home Page / Welcome Screen Component (Matching Original Design) ──
 function WelcomeScreen({ onSelect }: { onSelect: (s: string, n: string) => void }) {
-  const FEATURED = [
-    { symbol: "AAPL", name: "Apple Inc.", price: "$189.84", change: "+0.85%", isUp: true },
-    { symbol: "TSLA", name: "Tesla, Inc.", price: "$248.50", change: "+2.14%", isUp: true },
-    { symbol: "NVDA", name: "NVIDIA Corp.", price: "$128.92", change: "+1.56%", isUp: true },
-    { symbol: "MSFT", name: "Microsoft", price: "$449.78", change: "+0.43%", isUp: true },
-    { symbol: "GOOGL", name: "Alphabet", price: "$177.30", change: "-0.28%", isUp: false },
-    { symbol: "AMZN", name: "Amazon", price: "$186.40", change: "+1.02%", isUp: true },
-  ];
+  const [featuredCards, setFeaturedCards] = useState([
+    { symbol: "AAPL", name: "Apple Inc.", price: "$185.63", change: "+0.34%", isUp: true },
+    { symbol: "TSLA", name: "Tesla, Inc.", price: "$220.00", change: "+2.14%", isUp: true },
+    { symbol: "NVDA", name: "NVIDIA Corp.", price: "$128.40", change: "+3.20%", isUp: true },
+    { symbol: "MSFT", name: "Microsoft Corp.", price: "$420.15", change: "+0.52%", isUp: true },
+    { symbol: "GOOGL", name: "Alphabet Inc.", price: "$178.35", change: "+1.85%", isUp: true },
+    { symbol: "AMZN", name: "Amazon.com, Inc.", price: "$180.00", change: "+1.02%", isUp: true },
+  ]);
+
+  useEffect(() => {
+    let mounted = true;
+    const symbols = ["AAPL", "TSLA", "NVDA", "MSFT", "GOOGL", "AMZN"];
+
+    Promise.all(
+      symbols.map(async (s) => {
+        try {
+          const q = await api.getQuote(s);
+          const isUp = (q.change ?? 0) >= 0;
+          const formattedPrice = q.price ? `$${q.price.toFixed(2)}` : "$0.00";
+          const formattedChange = `${isUp ? "+" : ""}${(q.change_pct ?? 0).toFixed(2)}%`;
+          return {
+            symbol: s,
+            name: q.name && q.name !== s ? q.name : s,
+            price: formattedPrice,
+            change: formattedChange,
+            isUp,
+          };
+        } catch {
+          return null;
+        }
+      })
+    ).then((results) => {
+      if (!mounted) return;
+      const valid = results.filter(Boolean) as typeof featuredCards;
+      if (valid.length > 0) {
+        setFeaturedCards(valid);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-180px)] py-12 px-4 text-center">
@@ -447,7 +482,7 @@ function WelcomeScreen({ onSelect }: { onSelect: (s: string, n: string) => void 
 
         {/* 6 Quick Select Cards Grid (3 columns x 2 rows) */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {FEATURED.map((f) => (
+          {featuredCards.map((f) => (
             <button
               key={f.symbol}
               id={`quick-${f.symbol}`}

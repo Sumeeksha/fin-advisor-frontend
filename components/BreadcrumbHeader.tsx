@@ -10,7 +10,7 @@ interface BreadcrumbHeaderProps {
 }
 
 export default function BreadcrumbHeader({ ticker, quote, info }: BreadcrumbHeaderProps) {
-  const companyName = quote?.name || info?.name || `${ticker} Corp`;
+  const companyName = quote?.name || info?.name || ticker;
   const sector = info?.sector || "Mega-Cap Tech";
   const exchange = quote?.exchange || "NASDAQ";
 

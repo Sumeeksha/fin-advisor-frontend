@@ -20,16 +20,17 @@ export default function QuantitativeVsLLMPanel({
   const [showPayloadModal, setShowPayloadModal] = useState(false);
 
   // Extract forecast quantitative values
-  const projPrice = forecast?.summary?.projected_price ?? 188.40;
-  const projChangePct = forecast?.summary?.projected_change_pct ?? 1.49;
-  const projDiff = (projPrice - (forecast?.summary?.current_price ?? 185.63)).toFixed(2);
+  const currentPrice = forecast?.summary?.current_price ?? forecast?.confidence_corridor?.spot ?? 0;
+  const projPrice = forecast?.summary?.projected_price ?? (currentPrice ? currentPrice * 1.015 : 0);
+  const projChangePct = forecast?.summary?.projected_change_pct ?? (currentPrice ? 1.5 : 0);
+  const projDiff = (projPrice - currentPrice).toFixed(2);
   const aic = forecast?.aic_score ?? 842.10;
   const rmse = forecast?.rmse ?? 2.14;
   const drift = forecast?.drift_term ?? "+0.04$/day";
   const pValue = forecast?.p_value ?? "< 0.01 (Stationary)";
-  const lower95 = forecast?.confidence_corridor?.lower_95 ?? 181.20;
-  const upper95 = forecast?.confidence_corridor?.upper_95 ?? 194.10;
-  const spotPrice = forecast?.confidence_corridor?.spot ?? 185.63;
+  const lower95 = forecast?.confidence_corridor?.lower_95 ?? (currentPrice ? currentPrice * 0.96 : 0);
+  const upper95 = forecast?.confidence_corridor?.upper_95 ?? (currentPrice ? currentPrice * 1.04 : 0);
+  const spotPrice = currentPrice;
 
   // Extract consensus multi-LLM data
   const consensus = insight?.consensus;
