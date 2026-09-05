@@ -4,7 +4,7 @@ import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 import { loginWithGoogle, registerWithEmail, loginWithEmail } from "@/lib/auth";
-import { ShieldCheck, TrendingUp, Cpu, Lock, ArrowLeft, Mail, User as UserIcon, Key } from "lucide-react";
+import { ShieldCheck, Sparkles, Cpu, Lock, ArrowLeft, Mail, User as UserIcon, Key } from "lucide-react";
 import Link from "next/link";
 
 type AuthMode = "login" | "signup";
@@ -86,12 +86,16 @@ function LoginForm() {
     <div className="w-full max-w-md bg-slate-900/70 border border-slate-800/80 rounded-2xl p-8 backdrop-blur-xl shadow-2xl z-10 flex flex-col items-center">
       {/* Logo */}
       <div className="flex items-center gap-3 mb-2">
-        <div className="p-3 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-xl shadow-lg shadow-blue-500/20">
-          <TrendingUp className="w-6 h-6 text-white" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.png" alt="FinAdvisor Logo" className="w-10 h-10 rounded-xl shadow-lg shadow-cyan-500/20 object-cover" />
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-2xl font-black tracking-tight text-white">
+            Fin<span className="text-[var(--accent-cyan,#00e5ff)]">Advisor</span>
+          </span>
+          <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-[rgba(0,212,255,0.15)] text-[var(--accent-cyan,#00e5ff)] border border-[rgba(0,212,255,0.3)]">
+            AI PRO
+          </span>
         </div>
-        <span className="text-2xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-          FinAdvisor
-        </span>
       </div>
       <p className="text-slate-400 text-sm mb-6 text-center">
         AI-Powered Stock Analytics & Investment Insights

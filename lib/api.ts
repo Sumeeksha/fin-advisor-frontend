@@ -118,12 +118,56 @@ export interface LLMInsight {
   disclaimer: string;
 }
 
+export interface MarketRibbonItem {
+  symbol: string;
+  label: string;
+  price: number;
+  change_pct: number;
+}
+
+export interface PipelineStage {
+  id: string;
+  name: string;
+  subtitle: string;
+  details: string;
+  badge: string;
+  badge_color: "green" | "blue" | "cyan";
+}
+
+export interface ModelDetail {
+  name: string;
+  rating: string;
+  thesis: string;
+  target: string;
+  stop: string;
+}
+
+export interface ConsensusData {
+  verdict: string;
+  consensus_score: string;
+  allocation: { hold: number; accumulate: number; trim: number };
+  target_levels: {
+    accumulation_zone: string;
+    fair_target_12m: string;
+    stop_loss: string;
+  };
+  synthesis_thesis: string;
+  models: {
+    gpt4o: ModelDetail;
+    gemini: ModelDetail;
+  };
+}
+
 export interface InsightData {
   ticker: string;
   signal: "BUY" | "HOLD" | "SELL";
   confidence: number;
   risk_profile: string;
+  selected_model?: string;
   llm_insight: LLMInsight;
+  consensus?: ConsensusData;
+  pipeline_stages?: PipelineStage[];
+  risk_tags?: string[];
   quote: {
     price: number;
     change: number;
@@ -136,6 +180,13 @@ export interface InsightData {
 export interface ForecastData {
   ticker: string;
   method: string;
+  order?: string;
+  econometric_specification?: string;
+  aic_score?: number;
+  rmse?: number;
+  drift_term?: string;
+  p_value?: string;
+  confidence_corridor?: { lower_95: number; spot: number; upper_95: number };
   history: { dates: string[]; prices: number[] };
   forecast: {
     dates: string[];
@@ -190,6 +241,9 @@ export const api = {
   searchTickers: (q: string) =>
     fetchApi<{ results: SearchResult[] }>(`/api/stocks/search?q=${encodeURIComponent(q)}`),
 
+  getMarketRibbon: () =>
+    fetchApi<MarketRibbonItem[]>(`/api/stocks/market-ribbon`),
+
   getQuote: (ticker: string) =>
     fetchApi<QuoteData>(`/api/stocks/${ticker}/quote`),
 
@@ -213,9 +267,9 @@ export const api = {
   getNews: (ticker: string) =>
     fetchApi<{ ticker: string; news: NewsItem[] }>(`/api/news/${ticker}`),
 
-  getInsight: (ticker: string, riskProfile: string = "Moderate") =>
+  getInsight: (ticker: string, riskProfile: string = "Moderate", model: string = "dual") =>
     fetchApi<InsightData>(
-      `/api/insight/${ticker}?risk_profile=${encodeURIComponent(riskProfile)}`
+      `/api/insight/${ticker}?risk_profile=${encodeURIComponent(riskProfile)}&model=${encodeURIComponent(model)}`
     ),
 };
 

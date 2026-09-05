@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   api,
@@ -9,29 +8,35 @@ import {
 } from "@/lib/api";
 import { getStoredUser, clearSession, fetchCurrentUser, User } from "@/lib/auth";
 
-import SearchBar from "@/components/SearchBar";
-import PriceCard from "@/components/PriceCard";
+import Navbar from "@/components/Navbar";
+import SubHeader, { SubTabId } from "@/components/SubHeader";
+import BreadcrumbHeader from "@/components/BreadcrumbHeader";
+import StockHeaderBanner from "@/components/StockHeaderBanner";
+import AIHybridPipelineBanner from "@/components/AIHybridPipelineBanner";
+import QuantitativeVsLLMPanel from "@/components/QuantitativeVsLLMPanel";
+import MultiFactorSignalStrip from "@/components/MultiFactorSignalStrip";
 import StockChart from "@/components/StockChart";
+import Footer from "@/components/Footer";
+
 import IndicatorPanel from "@/components/IndicatorPanel";
 import AdvicePanel from "@/components/AdvicePanel";
 import ForecastChart from "@/components/ForecastChart";
 import NewsPanel from "@/components/NewsPanel";
-import InsightPanel from "@/components/InsightPanel";
-import ThemeToggle from "@/components/ThemeToggle";
 
-import { RefreshCw, BarChart2, TrendingUp, Newspaper, Activity, LogOut, LogIn } from "lucide-react";
+import { TrendingUp, Cpu, Activity, Sparkles } from "lucide-react";
 
 const REFRESH_INTERVAL = 60000; // 60 seconds
-
-type TabId = "overview" | "indicators" | "forecast" | "news";
 
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+
+  // Home Page by default (ticker is null until selected)
   const [ticker, setTicker] = useState<string | null>(null);
   const [tickerName, setTickerName] = useState("");
   const [period, setPeriod] = useState("3M");
-  const [activeTab, setActiveTab] = useState<TabId>("overview");
+  const [activeTab, setActiveTab] = useState<SubTabId>("overview");
+  const [selectedModel, setSelectedModel] = useState<"dual" | "gpt4o" | "gemini">("dual");
 
   // Data states
   const [quote, setQuote] = useState<QuoteData | null>(null);
@@ -51,7 +56,6 @@ export default function DashboardPage() {
   const [loadingForecast, setLoadingForecast] = useState(false);
   const [loadingNews, setLoadingNews] = useState(false);
   const [loadingInsight, setLoadingInsight] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const [error, setError] = useState<string | null>(null);
   const refreshRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
@@ -68,7 +72,6 @@ export default function DashboardPage() {
       const data = await api.getQuote(t);
       setQuote(data);
       setError(null);
-      setLastUpdated(new Date());
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to fetch quote");
     } finally {
@@ -86,14 +89,24 @@ export default function DashboardPage() {
     }
   }, []);
 
-  const fetchAll = useCallback(async (t: string) => {
+  const fetchInsightData = useCallback(async (t: string, m: "dual" | "gpt4o" | "gemini") => {
+    setLoadingInsight(true);
+    try {
+      const data = await api.getInsight(t, "Moderate", m);
+      setInsight(data);
+    } catch { /* silent */ } finally {
+      setLoadingInsight(false);
+    }
+  }, []);
+
+  const fetchAll = useCallback(async (t: string, m: "dual" | "gpt4o" | "gemini" = selectedModel) => {
     setLoadingIndicators(true);
     setLoadingAdvice(true);
     setLoadingForecast(true);
     setLoadingNews(true);
-    setLoadingInsight(true);
 
     fetchQuote(t);
+    fetchInsightData(t, m);
 
     api.getCompanyInfo(t).then(setInfo).catch(() => { });
 
@@ -116,15 +129,9 @@ export default function DashboardPage() {
       .then((res) => setNews(res.news))
       .catch(() => { })
       .finally(() => setLoadingNews(false));
+  }, [fetchQuote, fetchInsightData, selectedModel]);
 
-    api.getInsight(t)
-      .then(setInsight)
-      .catch(() => { })
-      .finally(() => setLoadingInsight(false));
-  }, [fetchQuote]);
-
-  const handleSelect = useCallback((symbol: string, name: string) => {
-    // Gate: Check if user is logged in
+  const handleSelectTicker = useCallback((symbol: string, name?: string) => {
     const currentUser = getStoredUser();
     if (!currentUser) {
       router.push(`/login?redirect=${encodeURIComponent(symbol)}&name=${encodeURIComponent(name || symbol)}`);
@@ -132,7 +139,7 @@ export default function DashboardPage() {
     }
 
     setTicker(symbol);
-    setTickerName(name);
+    setTickerName(name || symbol);
     setQuote(null);
     setInfo(null);
     setHistory([]);
@@ -142,11 +149,20 @@ export default function DashboardPage() {
     setNews([]);
     setInsight(null);
     setError(null);
-    fetchAll(symbol);
-    fetchHistory(symbol, period);
-  }, [fetchAll, fetchHistory, period, router]);
 
-  // Load user and handle return from login with intended ticker
+    fetchAll(symbol, selectedModel);
+    fetchHistory(symbol, period);
+  }, [fetchAll, fetchHistory, period, router, selectedModel]);
+
+  // Handle Model change
+  const handleModelChange = (m: "dual" | "gpt4o" | "gemini") => {
+    setSelectedModel(m);
+    if (ticker) {
+      fetchInsightData(ticker, m);
+    }
+  };
+
+  // Load user session
   useEffect(() => {
     const storedUser = getStoredUser();
     setUser(storedUser);
@@ -154,7 +170,6 @@ export default function DashboardPage() {
       if (u) setUser(u);
     });
 
-    // Check if arriving from login with an intended ticker
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const initialTicker = params.get("ticker");
@@ -162,11 +177,11 @@ export default function DashboardPage() {
       if (initialTicker) {
         window.history.replaceState({}, "", window.location.pathname);
         if (storedUser) {
-          handleSelect(initialTicker, initialName);
+          handleSelectTicker(initialTicker, initialName);
         }
       }
     }
-  }, [handleSelect]);
+  }, [handleSelectTicker]);
 
   useEffect(() => {
     if (!ticker) return;
@@ -181,188 +196,94 @@ export default function DashboardPage() {
     return () => clearInterval(refreshRef.current);
   }, [ticker, fetchQuote]);
 
-  const handleRefresh = () => {
-    if (ticker) {
-      fetchAll(ticker);
-      fetchHistory(ticker, period);
-    }
-  };
-
-  const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
-    { id: "overview", label: "Overview", icon: <BarChart2 size={15} /> },
-    { id: "indicators", label: "Indicators", icon: <Activity size={15} /> },
-    { id: "forecast", label: "Forecast", icon: <TrendingUp size={15} /> },
-    { id: "news", label: "News", icon: <Newspaper size={15} /> },
-  ];
-
   return (
-    <div className="min-h-screen grid-bg flex flex-col justify-between">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-sans flex flex-col justify-between selection:bg-[var(--accent-cyan)] selection:text-slate-950">
       <div>
-        {/* ── Top Header ────────────────────────── */}
-        <header className="sticky top-0 z-40 app-header backdrop-blur-xl transition-colors duration-300">
-          <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-2.5">
-            {/* Main Bar: Logo on left, Controls on right, Search in middle on desktop */}
-            <div className="flex items-center justify-between gap-3">
+        {/* ── Top Navigation Header ── */}
+        <Navbar
+          user={user}
+          onLogout={handleLogout}
+          onSelectTicker={handleSelectTicker}
+          onGoHome={() => setTicker(null)}
+        />
 
-              {/* 1. Logo & Market Status Badge */}
-              <div className="flex items-center gap-3 flex-shrink-0">
-                <button
-                  onClick={() => setTicker(null)}
-                  className="flex items-center gap-2 cursor-pointer hover:opacity-90 transition-opacity"
-                >
-                  <div className="w-7 h-7 rounded-lg app-logo-icon flex items-center justify-center shrink-0">
-                    <TrendingUp size={16} className="text-white" />
-                  </div>
-                  <span className="text-lg sm:text-xl font-black app-logo-text tracking-tight">FinAdvisor</span>
-                </button>
+        {/* ── Sub Navigation Header (Shown when viewing ticker) ── */}
+        {ticker && <SubHeader activeTab={activeTab} onTabChange={setActiveTab} />}
 
-                {/* Ticker status badge (Desktop only) */}
-                <div className="hidden lg:flex items-center gap-2 text-xs market-status-badge px-3 py-1 rounded-full font-medium">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 live-pulse" />
-                  <span className="font-semibold">US Markets Open</span>
-                  <span className="opacity-40">|</span>
-                  <span className="font-mono">SPY <span className="text-emerald-500 font-semibold">+0.64%</span></span>
-                  <span className="font-mono">QQQ <span className="text-emerald-500 font-semibold">+1.12%</span></span>
-                </div>
-              </div>
-
-              {/* 2. Desktop Search Bar (Hidden on mobile <sm, centered on sm+) */}
-              <div className="hidden sm:block flex-1 min-w-[200px] max-w-xl mx-3">
-                <SearchBar onSelect={handleSelect} />
-              </div>
-
-              {/* 3. Right Controls: Refresh + ThemeToggle + User Profile */}
-              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                {ticker && (
-                  <button
-                    id="refresh-btn"
-                    onClick={handleRefresh}
-                    disabled={loadingQuote}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium market-status-badge transition-all"
-                    title="Refresh data"
-                  >
-                    <RefreshCw size={13} className={loadingQuote ? "animate-spin" : ""} />
-                    <span className="hidden md:block">
-                      {lastUpdated ? `${formatTime(lastUpdated)}` : "Refresh"}
-                    </span>
-                  </button>
-                )}
-
-                <ThemeToggle />
-
-                {/* User Auth Control Pill */}
-                {user ? (
-                  <div className="flex items-center gap-2 market-status-badge px-2.5 sm:px-3 py-1 rounded-xl">
-                    {user.picture ? (
-                      <img
-                        src={user.picture}
-                        alt={user.name || "User Avatar"}
-                        className="w-5 h-5 rounded-full ring-2 ring-blue-500 shrink-0"
-                      />
-                    ) : (
-                      <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
-                        {user.name ? user.name[0].toUpperCase() : "U"}
-                      </div>
-                    )}
-                    <span className="text-xs font-medium max-w-[90px] truncate hidden md:inline">
-                      {user.name || user.email}
-                    </span>
-                    <button
-                      onClick={handleLogout}
-                      title="Sign Out"
-                      className="opacity-70 hover:opacity-100 hover:text-rose-400 p-0.5 transition-colors"
-                    >
-                      <LogOut size={13} />
-                    </button>
-                  </div>
-                ) : (
-                  <Link
-                    href="/login"
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-lg shadow-blue-600/20 transition-all"
-                  >
-                    <LogIn size={14} />
-                    <span className="hidden xs:inline">Sign In</span>
-                  </Link>
-                )}
-              </div>
-            </div>
-
-            {/* Mobile Search Bar (Full-width clean row directly under logo and controls on mobile <sm) */}
-            <div className="block sm:hidden mt-2 pt-1 border-t border-black/5 dark:border-white/5">
-              <SearchBar onSelect={handleSelect} />
-            </div>
-          </div>
-        </header>
-
-        {/* ── Main Workspace ───────────────────────────────── */}
-        <main className="max-w-7xl mx-auto px-4 pb-12">
+        {/* ── Main Container ── */}
+        <main className="max-w-[1700px] mx-auto px-4 py-6">
           {!ticker ? (
-            <WelcomeScreen onSelect={handleSelect} />
+            /* Home Page Welcome Screen matching original design */
+            <WelcomeScreen onSelect={handleSelectTicker} />
           ) : (
+            /* Ticker Dashboard View */
             <>
-              {/* Error Banner */}
               {error && (
-                <div className="mt-4 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm">
+                <div className="mb-4 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold font-mono">
                   ⚠️ {error}
                 </div>
               )}
 
-              {/* Ticker header */}
-              <div className="flex items-center justify-between mt-6 mb-4 flex-wrap gap-2">
-                <div>
-                  <h1 className="text-2xl font-black">{ticker}</h1>
-                  <p className="opacity-70 text-sm">{tickerName}</p>
-                </div>
-                {/* Tabs */}
-                <div className="flex gap-1 market-status-badge rounded-xl p-1">
-                  {TABS.map((t) => (
-                    <button
-                      key={t.id}
-                      id={`tab-${t.id}`}
-                      onClick={() => setActiveTab(t.id)}
-                      className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${activeTab === t.id
-                          ? "bg-blue-600 text-white shadow-sm"
-                          : "opacity-70 hover:opacity-100"
-                        }`}
-                    >
-                      {t.icon}
-                      <span className="hidden sm:block">{t.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+              {/* 1. Ticker Breadcrumbs & Quick Actions */}
+              <BreadcrumbHeader ticker={ticker} quote={quote} info={info} />
 
-              {/* Tab panels */}
+              {/* 2. Stock Header & 8 Key Statistics Banner */}
+              <StockHeaderBanner ticker={ticker} quote={quote} info={info} />
+
               {activeTab === "overview" && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                  {/* Left: Price + Chart */}
-                  <div className="lg:col-span-2 space-y-4">
-                    <PriceCard quote={quote!} info={info} loading={loadingQuote && !quote} />
-                    <StockChart
-                      data={history}
-                      period={period}
-                      onPeriodChange={setPeriod}
-                      loading={loadingHistory && history.length === 0}
-                      ticker={ticker}
-                    />
-                  </div>
-                  {/* Right: Advice & Insight */}
-                  <div className="space-y-4">
-                    <AdvicePanel data={advice} loading={loadingAdvice && !advice} />
-                    <InsightPanel data={insight} loading={loadingInsight && !insight} />
-                  </div>
-                </div>
+                <>
+                  {/* 3. AI Hybrid Pipeline Architecture Diagram */}
+                  <AIHybridPipelineBanner stages={insight?.pipeline_stages} />
+
+                  {/* 4. Quantitative vs Multi-LLM Analytical Panel with Model Selector */}
+                  <QuantitativeVsLLMPanel
+                    insight={insight}
+                    forecast={forecast}
+                    selectedModel={selectedModel}
+                    onSelectModel={handleModelChange}
+                  />
+
+                  {/* 5. Ingested Multi-Factor Evidence Signals Strip & Prompt Simulator */}
+                  <MultiFactorSignalStrip indicators={indicators} ticker={ticker} />
+
+                  {/* 6. Advanced Charting Canvas with Volume & Technical Averages */}
+                  <StockChart
+                    data={history}
+                    period={period}
+                    onPeriodChange={setPeriod}
+                    loading={loadingHistory && history.length === 0}
+                    ticker={ticker}
+                    forecast={forecast}
+                    indicators={indicators}
+                  />
+                </>
               )}
 
               {activeTab === "indicators" && (
-                <div>
+                <div className="space-y-6">
                   <IndicatorPanel data={indicators} loading={loadingIndicators && !indicators} />
+                  <StockChart
+                    data={history}
+                    period={period}
+                    onPeriodChange={setPeriod}
+                    loading={loadingHistory && history.length === 0}
+                    ticker={ticker}
+                    forecast={forecast}
+                    indicators={indicators}
+                  />
                 </div>
               )}
 
               {activeTab === "forecast" && (
-                <div>
+                <div className="space-y-6">
                   <ForecastChart data={forecast} loading={loadingForecast && !forecast} />
+                  <StockChart
+                    data={history}
+                    period={period}
+                    onPeriodChange={setPeriod}
+                    loading={loadingHistory && history.length === 0}
+                    ticker={ticker}
+                  />
                 </div>
               )}
 
@@ -371,28 +292,38 @@ export default function DashboardPage() {
                   <NewsPanel news={news} loading={loadingNews && news.length === 0} />
                 </div>
               )}
+
+              {activeTab === "financials" && (
+                <div className="glass-card p-6 text-center py-12">
+                  <Cpu size={32} className="mx-auto text-[var(--accent-cyan)] mb-3" />
+                  <h3 className="text-lg font-bold">SEC 10-K & 10-Q Financial Filings Feed</h3>
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">
+                    Real-time automated SEC EDGAR parsing enabled for {ticker}.
+                  </p>
+                </div>
+              )}
+
+              {activeTab === "options" && (
+                <div className="glass-card p-6 text-center py-12">
+                  <Activity size={32} className="mx-auto text-[var(--accent-blue)] mb-3" />
+                  <h3 className="text-lg font-bold">Options Flow & Dark Pool Volume Stream</h3>
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">
+                    Institutional block trade tracking active for {ticker}.
+                  </p>
+                </div>
+              )}
             </>
           )}
         </main>
       </div>
 
-      {/* ── Footer ─────────────────────── */}
-      <footer className="app-footer py-4 px-6 text-xs">
-        <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-3">
-          <div>
-            © 2026 FinAdvisor Technologies Inc. &nbsp;·&nbsp; Data Disclaimer &nbsp;·&nbsp; Privacy
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 live-pulse" />
-            <span className="font-medium">WebSocket Feed: 42ms latency</span>
-          </div>
-        </div>
-      </footer>
+      {/* ── Institutional Footer ── */}
+      <Footer />
     </div>
   );
 }
 
-// ── Hero / Welcome Screen ────────────
+// ── Home Page / Welcome Screen Component (Matching Original Design) ──
 function WelcomeScreen({ onSelect }: { onSelect: (s: string, n: string) => void }) {
   const FEATURED = [
     { symbol: "AAPL", name: "Apple Inc.", price: "$189.84", change: "+0.85%", isUp: true },
@@ -404,20 +335,24 @@ function WelcomeScreen({ onSelect }: { onSelect: (s: string, n: string) => void 
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-140px)] py-8 px-4 text-center">
-      {/* Central Glowing Icon Box */}
-      <div className="mb-4">
-        <div className="w-16 h-16 rounded-2xl cyan-neon-box flex items-center justify-center mx-auto mb-6">
-          <TrendingUp size={32} className="text-white" />
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-180px)] py-12 px-4 text-center">
+      {/* Central Glowing Icon Box & Title */}
+      <div className="mb-6">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.png" alt="FinAdvisor Logo" className="w-16 h-16 rounded-2xl shadow-[0_0_35px_rgba(0,212,255,0.4)] mx-auto mb-6 object-cover" />
+
+        {/* Main Title with AI PRO Badge */}
+        <div className="flex items-center justify-center gap-3 mb-4 flex-wrap">
+          <h1 className="text-5xl sm:text-6xl font-black tracking-tight text-[var(--text-primary)]">
+            Fin<span className="text-[var(--accent-cyan)]">Advisor</span>
+          </h1>
+          <span className="text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-[rgba(0,212,255,0.15)] text-[var(--accent-cyan)] border border-[rgba(0,212,255,0.3)]">
+            AI PRO
+          </span>
         </div>
 
-        {/* Main Title */}
-        <h1 className="text-5xl sm:text-6xl font-black mb-4 glow-title tracking-tight">
-          FinAdvisor
-        </h1>
-
         {/* Subtitle */}
-        <p className="text-base sm:text-lg hero-subtitle max-w-xl mx-auto leading-relaxed font-normal">
+        <p className="text-base sm:text-lg text-[var(--text-secondary)] max-w-xl mx-auto leading-relaxed font-normal">
           AI-powered stock analysis with real-time quotes, technical indicators, and Buy/Hold/Sell signals.
         </p>
       </div>
@@ -433,7 +368,7 @@ function WelcomeScreen({ onSelect }: { onSelect: (s: string, n: string) => void 
         ].map((f) => (
           <div
             key={f.label}
-            className="flex items-center gap-1.5 text-xs px-4 py-1.5 rounded-full feature-pill font-semibold transition-colors"
+            className="flex items-center gap-1.5 text-xs px-4 py-1.5 rounded-full bg-[rgba(255,255,255,0.03)] border border-[var(--border-color)] font-semibold text-[var(--text-primary)]"
           >
             <span>{f.icon}</span>
             <span>{f.label}</span>
@@ -442,8 +377,8 @@ function WelcomeScreen({ onSelect }: { onSelect: (s: string, n: string) => void 
       </div>
 
       {/* Quick Select Section */}
-      <div className="w-full max-w-4xl mt-4">
-        <p className="text-xs font-semibold opacity-60 uppercase tracking-[0.2em] mb-6">
+      <div className="w-full max-w-4xl mt-6">
+        <p className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-6">
           QUICK SELECT
         </p>
 
@@ -453,25 +388,29 @@ function WelcomeScreen({ onSelect }: { onSelect: (s: string, n: string) => void 
             <button
               key={f.symbol}
               id={`quick-${f.symbol}`}
+              type="button"
               onClick={() => onSelect(f.symbol, f.name)}
-              className="quick-card rounded-xl p-5 text-left transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[100px] group"
+              className="glass-card p-5 text-left hover:border-[var(--accent-cyan)] transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[110px] group rounded-2xl"
             >
               <div>
-                <div className="font-mono font-bold quick-card-symbol text-lg group-hover:text-blue-500 transition-colors">
+                <div className="font-mono font-bold text-lg text-[var(--accent-cyan)] group-hover:text-white transition-colors">
                   {f.symbol}
                 </div>
-                <div className="text-xs quick-card-name font-normal truncate mt-0.5">
+                <div className="text-xs text-[var(--text-secondary)] font-normal truncate mt-0.5">
                   {f.name}
                 </div>
               </div>
 
-              <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-black/10 dark:border-white/10">
-                <span className="font-bold quick-card-price text-base font-mono">
+              <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-[var(--border-color)]">
+                <span className="font-bold text-base font-mono text-[var(--text-primary)]">
                   {f.price}
                 </span>
                 <span
-                  className={`text-xs font-semibold font-mono ${f.isUp ? "quick-badge-up" : "quick-badge-down"
-                    }`}
+                  className={`text-xs font-semibold font-mono px-2 py-0.5 rounded ${
+                    f.isUp
+                      ? "bg-[rgba(16,217,138,0.15)] text-[#10d98a]"
+                      : "bg-[rgba(255,77,109,0.15)] text-[#ff4d6d]"
+                  }`}
                 >
                   {f.change}
                 </span>
@@ -482,8 +421,4 @@ function WelcomeScreen({ onSelect }: { onSelect: (s: string, n: string) => void 
       </div>
     </div>
   );
-}
-
-function formatTime(d: Date): string {
-  return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 }
