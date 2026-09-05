@@ -203,7 +203,7 @@ export default function DashboardPage() {
           <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-2.5">
             {/* Main Bar: Logo on left, Controls on right, Search in middle on desktop */}
             <div className="flex items-center justify-between gap-3">
-              
+
               {/* 1. Logo & Market Status Badge */}
               <div className="flex items-center gap-3 flex-shrink-0">
                 <button
@@ -320,11 +320,10 @@ export default function DashboardPage() {
                       key={t.id}
                       id={`tab-${t.id}`}
                       onClick={() => setActiveTab(t.id)}
-                      className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                        activeTab === t.id
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${activeTab === t.id
                           ? "bg-blue-600 text-white shadow-sm"
                           : "opacity-70 hover:opacity-100"
-                      }`}
+                        }`}
                     >
                       {t.icon}
                       <span className="hidden sm:block">{t.label}</span>
@@ -381,7 +380,7 @@ export default function DashboardPage() {
       <footer className="app-footer py-4 px-6 text-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-3">
           <div>
-            © 2025 FinAdvisor Technologies Inc. &nbsp;·&nbsp; Data Disclaimer &nbsp;·&nbsp; Privacy
+            © 2026 FinAdvisor Technologies Inc. &nbsp;·&nbsp; Data Disclaimer &nbsp;·&nbsp; Privacy
           </div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 live-pulse" />
@@ -471,9 +470,8 @@ function WelcomeScreen({ onSelect }: { onSelect: (s: string, n: string) => void 
                   {f.price}
                 </span>
                 <span
-                  className={`text-xs font-semibold font-mono ${
-                    f.isUp ? "quick-badge-up" : "quick-badge-down"
-                  }`}
+                  className={`text-xs font-semibold font-mono ${f.isUp ? "quick-badge-up" : "quick-badge-down"
+                    }`}
                 >
                   {f.change}
                 </span>
