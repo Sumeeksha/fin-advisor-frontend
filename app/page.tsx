@@ -15,6 +15,7 @@ import StockHeaderBanner from "@/components/StockHeaderBanner";
 import AIHybridPipelineBanner from "@/components/AIHybridPipelineBanner";
 import QuantitativeVsLLMPanel from "@/components/QuantitativeVsLLMPanel";
 import MultiFactorSignalStrip from "@/components/MultiFactorSignalStrip";
+import AIChatPanel from "@/components/AIChatPanel";
 import StockChart from "@/components/StockChart";
 import Footer from "@/components/Footer";
 
@@ -313,7 +314,18 @@ export default function DashboardPage() {
 
               {activeTab === "forecast" && (
                 <div className="space-y-6">
-                  {/* Candlestick Chart with Live Forecast Cone & Overlay */}
+                  {/* 1. AI Hybrid Pipeline Architecture Diagram */}
+                  <AIHybridPipelineBanner stages={insight?.pipeline_stages} />
+
+                  {/* 2. Quantitative vs Multi-LLM Analytical Panel with Model Selector */}
+                  <QuantitativeVsLLMPanel
+                    insight={insight}
+                    forecast={forecast}
+                    selectedModel={selectedModel}
+                    onSelectModel={handleModelChange}
+                  />
+
+                  {/* 3. Candlestick Chart with Live Forecast Cone & Overlay */}
                   <StockChart
                     data={history}
                     period={period}
@@ -322,6 +334,17 @@ export default function DashboardPage() {
                     ticker={ticker}
                     forecast={forecast}
                     indicators={indicators}
+                  />
+                </div>
+              )}
+
+              {activeTab === "chat" && (
+                <div>
+                  {/* Full-screen AI Copilot Chat */}
+                  <AIChatPanel
+                    ticker={ticker}
+                    indicators={indicators}
+                    advice={advice}
                   />
                 </div>
               )}
