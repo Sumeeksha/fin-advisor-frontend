@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   api,
   QuoteData, OHLCVBar, IndicatorData, AdviceData, ForecastData, NewsItem, CompanyInfo, InsightData
@@ -25,6 +26,7 @@ const REFRESH_INTERVAL = 60000; // 60 seconds
 type TabId = "overview" | "indicators" | "forecast" | "news";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [ticker, setTicker] = useState<string | null>(null);
   const [tickerName, setTickerName] = useState("");
@@ -54,16 +56,10 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const refreshRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
-  useEffect(() => {
-    setUser(getStoredUser());
-    fetchCurrentUser().then((u) => {
-      if (u) setUser(u);
-    });
-  }, []);
-
   const handleLogout = () => {
     clearSession();
     setUser(null);
+    setTicker(null);
   };
 
   const fetchQuote = useCallback(async (t: string) => {
@@ -127,7 +123,14 @@ export default function DashboardPage() {
       .finally(() => setLoadingInsight(false));
   }, [fetchQuote]);
 
-  const handleSelect = (symbol: string, name: string) => {
+  const handleSelect = useCallback((symbol: string, name: string) => {
+    // Gate: Check if user is logged in
+    const currentUser = getStoredUser();
+    if (!currentUser) {
+      router.push(`/login?redirect=${encodeURIComponent(symbol)}&name=${encodeURIComponent(name || symbol)}`);
+      return;
+    }
+
     setTicker(symbol);
     setTickerName(name);
     setQuote(null);
@@ -141,7 +144,29 @@ export default function DashboardPage() {
     setError(null);
     fetchAll(symbol);
     fetchHistory(symbol, period);
-  };
+  }, [fetchAll, fetchHistory, period, router]);
+
+  // Load user and handle return from login with intended ticker
+  useEffect(() => {
+    const storedUser = getStoredUser();
+    setUser(storedUser);
+    fetchCurrentUser().then((u) => {
+      if (u) setUser(u);
+    });
+
+    // Check if arriving from login with an intended ticker
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const initialTicker = params.get("ticker");
+      const initialName = params.get("name") || initialTicker || "";
+      if (initialTicker) {
+        window.history.replaceState({}, "", window.location.pathname);
+        if (storedUser) {
+          handleSelect(initialTicker, initialName);
+        }
+      }
+    }
+  }, [handleSelect]);
 
   useEffect(() => {
     if (!ticker) return;
