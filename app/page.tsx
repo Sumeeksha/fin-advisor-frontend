@@ -275,21 +275,10 @@ export default function DashboardPage() {
 
               {activeTab === "overview" && (
                 <>
-                  {/* 3. AI Hybrid Pipeline Architecture Diagram */}
-                  <AIHybridPipelineBanner stages={insight?.pipeline_stages} />
-
-                  {/* 4. Quantitative vs Multi-LLM Analytical Panel with Model Selector */}
-                  <QuantitativeVsLLMPanel
-                    insight={insight}
-                    forecast={forecast}
-                    selectedModel={selectedModel}
-                    onSelectModel={handleModelChange}
-                  />
-
-                  {/* 5. Ingested Multi-Factor Evidence Signals Strip & Prompt Simulator */}
+                  {/* 3. Ingested Multi-Factor Evidence Signals Strip & Prompt Simulator */}
                   <MultiFactorSignalStrip indicators={indicators} ticker={ticker} />
 
-                  {/* 6. Advanced Charting Canvas with Volume & Technical Averages */}
+                  {/* 4. Advanced Charting Canvas with Volume & Technical Averages */}
                   <StockChart
                     data={history}
                     period={period}
@@ -308,7 +297,7 @@ export default function DashboardPage() {
                   <ForecastChart data={forecast} loading={loadingForecast && !forecast} />
 
                   {/* Technical Indicators Panel */}
-                  <IndicatorPanel data={indicators} loading={loadingIndicators && !indicators} />
+                  <IndicatorPanel data={indicators} forecast={forecast} loading={loadingIndicators && !indicators} />
                 </div>
               )}
 
@@ -317,7 +306,7 @@ export default function DashboardPage() {
                   {/* 1. AI Hybrid Pipeline Architecture Diagram */}
                   <AIHybridPipelineBanner stages={insight?.pipeline_stages} />
 
-                  {/* 2. Quantitative vs Multi-LLM Analytical Panel with Model Selector */}
+                  {/* 2. Multi-Model AI Consensus Engine Panel */}
                   <QuantitativeVsLLMPanel
                     insight={insight}
                     forecast={forecast}
@@ -325,7 +314,10 @@ export default function DashboardPage() {
                     onSelectModel={handleModelChange}
                   />
 
-                  {/* 3. Candlestick Chart with Live Forecast Cone & Overlay */}
+                  {/* 3. Price Forecast Projections Graph */}
+                  <ForecastChart data={forecast} loading={loadingForecast && !forecast} />
+
+                  {/* 4. Candlestick Chart with Live Forecast Cone & Overlay */}
                   <StockChart
                     data={history}
                     period={period}

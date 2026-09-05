@@ -40,15 +40,8 @@ export default function BreadcrumbHeader({ ticker, quote, info }: BreadcrumbHead
           type="button"
           className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.08)] border border-[var(--border-color)] text-[var(--text-primary)] font-bold transition-all cursor-pointer"
         >
-          <Bookmark size={13} className="text-[var(--accent-cyan)]" />
-          <span>Watchlist</span>
-        </button>
-        <button
-          type="button"
-          className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.08)] border border-[var(--border-color)] text-[var(--text-primary)] font-bold transition-all cursor-pointer"
-        >
           <Bell size={13} className="text-[var(--accent-blue)]" />
-          <span>Alert ($186.00)</span>
+          <span>Alert {quote?.price ? `($${quote.price.toFixed(2)})` : ""}</span>
         </button>
         <button
           type="button"
