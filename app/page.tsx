@@ -483,7 +483,7 @@ function WelcomeScreen({ onSelect }: { onSelect: (s: string, n: string) => void 
               className="glass-card p-5 text-left hover:border-[var(--accent-cyan)] transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[110px] group rounded-2xl"
             >
               <div>
-                <div className="font-mono font-bold text-lg text-[var(--accent-cyan)] group-hover:text-white transition-colors">
+                <div className="font-mono font-bold text-lg text-[var(--accent-cyan)] transition-colors">
                   {f.symbol}
                 </div>
                 <div className="text-xs text-[var(--text-secondary)] font-normal truncate mt-0.5">

@@ -4,7 +4,7 @@ import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 import { loginWithGoogle, registerWithEmail, loginWithEmail } from "@/lib/auth";
-import { ShieldCheck, Sparkles, Cpu, Lock, ArrowLeft, Mail, User as UserIcon, Key } from "lucide-react";
+import { ShieldCheck, Sparkles, Cpu, Lock, ArrowLeft, Mail, User as UserIcon, Key, Bell } from "lucide-react";
 import Link from "next/link";
 
 type AuthMode = "login" | "signup";
@@ -83,13 +83,13 @@ function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md bg-slate-900/70 border border-slate-800/80 rounded-2xl p-8 backdrop-blur-xl shadow-2xl z-10 flex flex-col items-center">
+    <div className="w-full max-w-md bg-[var(--card-subtle)] border border-[var(--border-color)] rounded-2xl p-8 backdrop-blur-xl shadow-2xl z-10 flex flex-col items-center">
       {/* Logo */}
       <div className="flex items-center gap-3 mb-2">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.png" alt="FinAdvisor Logo" className="w-10 h-10 rounded-xl shadow-lg shadow-cyan-500/20 object-cover" />
         <div className="flex items-baseline gap-1.5">
-          <span className="text-2xl font-black tracking-tight text-white">
+          <span className="text-2xl font-black tracking-tight text-[var(--text-primary)]">
             Fin<span className="text-[var(--accent-cyan,#00e5ff)]">Advisor</span>
           </span>
           <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-[rgba(0,212,255,0.15)] text-[var(--accent-cyan,#00e5ff)] border border-[rgba(0,212,255,0.3)]">
@@ -97,7 +97,7 @@ function LoginForm() {
           </span>
         </div>
       </div>
-      <p className="text-slate-400 text-sm mb-6 text-center">
+      <p className="text-[var(--text-secondary)] text-sm mb-6 text-center">
         AI-Powered Stock Analytics & Investment Insights
       </p>
 
@@ -110,14 +110,14 @@ function LoginForm() {
       )}
 
       {/* Tab Selector: Sign In vs Create Account */}
-      <div className="w-full flex p-1 bg-slate-800/50 rounded-xl border border-slate-700/50 mb-6">
+      <div className="w-full flex p-1 bg-[var(--card-subtle)] rounded-xl border border-[var(--border-color)] mb-6">
         <button
           type="button"
           onClick={() => { setMode("login"); setError(null); }}
           className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
             mode === "login"
               ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md"
-              : "text-slate-400 hover:text-slate-200"
+              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           }`}
         >
           Sign In
@@ -128,7 +128,7 @@ function LoginForm() {
           className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
             mode === "signup"
               ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md"
-              : "text-slate-400 hover:text-slate-200"
+              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           }`}
         >
           Create Account
@@ -147,7 +147,7 @@ function LoginForm() {
       <form onSubmit={handleEmailAuth} className="w-full flex flex-col gap-4">
         {mode === "signup" && (
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">
+            <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
               Full Name
             </label>
             <div className="relative">
@@ -158,14 +158,14 @@ function LoginForm() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-800/60 border border-slate-700/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-white placeholder:text-slate-500"
+                className="w-full pl-10 pr-4 py-2.5 bg-[var(--card-subtle)] border border-[var(--border-color)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]"
               />
             </div>
           </div>
         )}
 
         <div>
-          <label className="block text-xs font-medium text-slate-300 mb-1.5">
+          <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
             Email Address
           </label>
           <div className="relative">
@@ -176,13 +176,13 @@ function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-800/60 border border-slate-700/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-white placeholder:text-slate-500"
+              className="w-full pl-10 pr-4 py-2.5 bg-[var(--card-subtle)] border border-[var(--border-color)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-slate-300 mb-1.5">
+          <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
             Password
           </label>
           <div className="relative">
@@ -194,7 +194,7 @@ function LoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-800/60 border border-slate-700/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-white placeholder:text-slate-500"
+              className="w-full pl-10 pr-4 py-2.5 bg-[var(--card-subtle)] border border-[var(--border-color)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]"
             />
           </div>
         </div>
@@ -216,11 +216,11 @@ function LoginForm() {
 
       {/* Divider */}
       <div className="w-full flex items-center gap-3 my-6">
-        <div className="flex-1 h-[1px] bg-slate-800" />
-        <span className="text-[11px] uppercase tracking-wider text-slate-500 font-medium">
+        <div className="flex-1 h-[1px] bg-[var(--border-color)]" />
+        <span className="text-[11px] uppercase tracking-wider text-[var(--text-secondary)] font-medium">
           Or continue with
         </span>
-        <div className="flex-1 h-[1px] bg-slate-800" />
+        <div className="flex-1 h-[1px] bg-[var(--border-color)]" />
       </div>
 
       {/* Google OAuth Button */}
@@ -236,7 +236,7 @@ function LoginForm() {
       </div>
 
       {/* Security Footer Notice */}
-      <div className="mt-8 flex items-center gap-1.5 text-slate-500 text-[11px]">
+      <div className="mt-8 flex items-center gap-1.5 text-[var(--text-secondary)] text-[11px]">
         <ShieldCheck className="w-3.5 h-3.5 text-emerald-500/80" />
         <span>Secured with 256-bit encryption & Google Cloud Identity</span>
       </div>
@@ -246,7 +246,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center items-center relative overflow-hidden p-4">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex flex-col justify-center items-center relative overflow-hidden p-4">
       {/* Background Glows */}
       <div className="absolute top-1/4 -left-32 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
@@ -255,14 +255,14 @@ export default function LoginPage() {
       <div className="absolute top-6 left-6">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors bg-slate-900/60 border border-slate-800 px-4 py-2 rounded-xl backdrop-blur-md"
+          className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors bg-[var(--card-subtle)] border border-[var(--border-color)] px-4 py-2 rounded-xl backdrop-blur-md"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
         </Link>
       </div>
 
-      <Suspense fallback={<div className="text-slate-400 text-sm">Loading...</div>}>
+      <Suspense fallback={<div className="text-[var(--text-secondary)] text-sm">Loading...</div>}>
         <LoginForm />
       </Suspense>
     </div>
