@@ -104,13 +104,13 @@ export default function Navbar({ user, onLogout, onSelectTicker, onGoHome }: Nav
     <header className="sticky top-0 z-40 app-header backdrop-blur-xl border-b border-[var(--border-color)]">
       <div className="max-w-[1700px] mx-auto px-3 sm:px-4 py-2.5">
         {/* Main top header row */}
-        <div className="flex items-center justify-between gap-2.5">
+        <div className="flex items-center justify-between gap-1.5 sm:gap-2.5">
           {/* Left: Brand Logo & Title */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button
               type="button"
               onClick={onGoHome}
-              className="flex items-center gap-2 group cursor-pointer text-left focus:outline-none"
+              className="flex items-center gap-1.5 sm:gap-2 group cursor-pointer text-left focus:outline-none"
               title="Go to Home Page"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -119,7 +119,7 @@ export default function Navbar({ user, onLogout, onSelectTicker, onGoHome }: Nav
                 alt="FinAdvisor Logo"
                 className="w-7 h-7 rounded-[10px] shadow-[0_4px_14px_rgba(0,115,255,0.35)] group-hover:scale-105 transition-transform"
               />
-              <span className="font-extrabold text-base sm:text-lg tracking-tight text-[var(--text-primary)]">
+              <span className="font-extrabold text-sm sm:text-lg tracking-tight text-[var(--text-primary)]">
                 FinAdvisor
               </span>
             </button>
@@ -131,7 +131,7 @@ export default function Navbar({ user, onLogout, onSelectTicker, onGoHome }: Nav
           </div>
 
           {/* Right: Controls & Profile */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {/* ── 1. Timezone Clock Dropdown (Hidden on mobile/small viewports) ── */}
             <div className="hidden md:block relative inline-block min-w-[215px]" ref={dropdownRef}>
               <button
@@ -211,7 +211,7 @@ export default function Navbar({ user, onLogout, onSelectTicker, onGoHome }: Nav
             {/* ── 3. Notifications ── */}
             <button
               type="button"
-              className="p-2 rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--card-subtle)] border border-[var(--border-color)] transition-all cursor-pointer relative shrink-0"
+              className="p-1.5 sm:p-2 rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--card-subtle)] border border-[var(--border-color)] transition-all cursor-pointer relative shrink-0"
               title="Notifications"
             >
               <Bell size={15} />
@@ -225,8 +225,12 @@ export default function Navbar({ user, onLogout, onSelectTicker, onGoHome }: Nav
 
             {/* User Profile / Auth State */}
             {user ? (
-              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                <Link href="/profile" className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-[rgba(79,128,255,0.15)] to-[rgba(0,212,255,0.15)] border border-[rgba(79,128,255,0.3)] hover:opacity-80 transition-opacity cursor-pointer">
+              <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-gradient-to-r from-[rgba(79,128,255,0.15)] to-[rgba(0,212,255,0.15)] border border-[rgba(79,128,255,0.3)] hover:opacity-80 transition-opacity cursor-pointer"
+                  title="User Profile"
+                >
                   {user.picture ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={user.picture} alt={user.name || "User Avatar"} className="w-5 h-5 rounded-full object-cover shrink-0" />
@@ -243,7 +247,7 @@ export default function Navbar({ user, onLogout, onSelectTicker, onGoHome }: Nav
                 <button
                   type="button"
                   onClick={onLogout}
-                  className="p-2 rounded-xl text-rose-400 hover:bg-rose-500/10 border border-rose-500/20 transition-all cursor-pointer shrink-0"
+                  className="p-1.5 sm:p-2 rounded-xl text-rose-400 hover:bg-rose-500/10 border border-rose-500/20 transition-all cursor-pointer shrink-0"
                   title="Logout"
                 >
                   <LogOut size={15} />
@@ -252,7 +256,7 @@ export default function Navbar({ user, onLogout, onSelectTicker, onGoHome }: Nav
             ) : (
               <Link
                 href="/login"
-                className="px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[var(--accent-blue)] to-[var(--accent-cyan)] hover:opacity-90 transition-opacity shadow-sm shrink-0 whitespace-nowrap"
+                className="px-2.5 sm:px-4 py-1.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[var(--accent-blue)] to-[var(--accent-cyan)] hover:opacity-90 transition-opacity shadow-sm shrink-0 whitespace-nowrap"
               >
                 Sign In
               </Link>
