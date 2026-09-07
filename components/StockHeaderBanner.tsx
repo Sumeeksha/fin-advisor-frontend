@@ -31,40 +31,42 @@ export default function StockHeaderBanner({ ticker, quote, info }: StockHeaderBa
   const yearRangePct = Math.min(100, Math.max(0, ((price - low52w) / (high52w - low52w || 1)) * 100));
 
   return (
-    <div className="glass-card p-6 mb-6">
-      {/* Top Title & Price Summary */}
-      <div className="flex items-start justify-between gap-4 flex-wrap mb-6 border-b border-[var(--border-color)] pb-5">
+    <div className="glass-card p-4 sm:p-6 mb-6">
+      {/* Top Title & Price Summary — stacks vertically on mobile */}
+      <div className="flex flex-col gap-4 mb-6 border-b border-[var(--border-color)] pb-5">
+        {/* Title row */}
         <div>
-          <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-3xl font-extrabold text-[var(--text-primary)] tracking-tight">
-              {(quote?.name && quote.name !== ticker) ? quote.name : (info?.name && info.name !== ticker) ? info.name : ticker} <span className="text-[var(--text-secondary)] font-semibold">({ticker})</span>
+          <div className="flex flex-wrap items-start gap-2 mb-1">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[var(--text-primary)] tracking-tight leading-tight">
+              {(quote?.name && quote.name !== ticker) ? quote.name : (info?.name && info.name !== ticker) ? info.name : ticker}{" "}
+              <span className="text-[var(--text-secondary)] font-semibold">({ticker})</span>
             </h1>
-            <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[rgba(0,212,255,0.1)] text-[var(--accent-cyan)] border border-[rgba(0,212,255,0.3)]">
+            <span className="shrink-0 self-start px-2 py-0.5 rounded-full text-[10px] font-bold bg-[rgba(0,212,255,0.1)] text-[var(--accent-cyan)] border border-[rgba(0,212,255,0.3)] whitespace-nowrap">
               BETA 20D: 1.25 Moderate
             </span>
           </div>
-          <p className="text-xs text-[var(--text-secondary)]">
+          <p className="text-[11px] sm:text-xs text-[var(--text-secondary)] leading-relaxed">
             {info?.industry || "Consumer Electronics • Technology Hardware & Equipment"} • S&P 500 / Nasdaq 100 Component
           </p>
         </div>
 
-        {/* Right: Big Price Banner */}
-        <div className="text-right">
-          <div className="flex items-baseline justify-end gap-3">
-            <span className="text-4xl font-black text-[var(--text-primary)] font-mono tracking-tight">
+        {/* Price row — left-aligned on mobile */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex flex-wrap items-baseline gap-2 sm:gap-3">
+            <span className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] font-mono tracking-tight">
               ${formatPrice(price)}
             </span>
-            <div className={`flex items-center gap-1 text-sm font-extrabold px-2.5 py-1 rounded-xl ${
+            <div className={`inline-flex items-center gap-1 text-xs sm:text-sm font-extrabold px-2 sm:px-2.5 py-1 rounded-xl ${
               isPositive ? "bg-[rgba(16,217,138,0.15)] text-[#10d98a] border border-[rgba(16,217,138,0.3)]" : "bg-[rgba(255,77,109,0.15)] text-[#ff4d6d] border border-[rgba(255,77,109,0.3)]"
             }`}>
-              {isPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-              <span>{isPositive ? "+" : ""}${formatPrice(change)} ({isPositive ? "+" : ""}{changePct.toFixed(2)}%) TODAY</span>
+              {isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+              <span className="whitespace-nowrap">{isPositive ? "+" : ""}${formatPrice(change)} ({isPositive ? "+" : ""}{changePct.toFixed(2)}%) TODAY</span>
             </div>
           </div>
-          <div className="flex items-center justify-end gap-3 text-[11px] text-[var(--text-secondary)] mt-1 font-mono">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] sm:text-[11px] text-[var(--text-secondary)] font-mono">
             <span>After Hours: <strong className="text-[var(--text-primary)]">${formatPrice(price + 0.17)}</strong> <span className="text-[#10d98a]">+$0.17 (+0.09%)</span></span>
-            <span>•</span>
-            <span>Prev Close: <strong className="text-[var(--text-primary)]">${formatPrice(prevClose)}</strong> (Overnight Flat)</span>
+            <span className="hidden sm:inline">•</span>
+            <span>Prev Close: <strong className="text-[var(--text-primary)]">${formatPrice(prevClose)}</strong></span>
           </div>
         </div>
       </div>

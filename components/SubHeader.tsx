@@ -30,7 +30,7 @@ export default function SubHeader({ activeTab, onTabChange }: SubHeaderProps) {
     <div className="bg-[var(--bg-secondary)] backdrop-blur-md border-b border-[var(--border-color)] overflow-x-auto no-scrollbar scrollbar-none transition-colors duration-300">
       <div className="max-w-[1700px] mx-auto px-3 sm:px-4 flex items-center justify-between gap-4">
         {/* Tab list */}
-        <div className="flex items-center gap-1.5 py-1.5 min-w-max flex-nowrap overflow-x-auto no-scrollbar scrollbar-none">
+        <div className="flex items-center gap-1 sm:gap-1.5 py-1.5 w-full sm:w-auto justify-between sm:justify-start flex-nowrap overflow-x-auto no-scrollbar scrollbar-none">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -39,14 +39,15 @@ export default function SubHeader({ activeTab, onTabChange }: SubHeaderProps) {
                 key={tab.id}
                 type="button"
                 onClick={() => onTabChange(tab.id)}
-                className={`flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer shrink-0 whitespace-nowrap ${
+                title={tab.label}
+                className={`flex items-center justify-center gap-1.5 px-2.5 sm:px-3.5 py-2 sm:py-1.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer shrink-0 ${
                   isActive
                     ? "bg-[rgba(0,212,255,0.12)] text-[var(--accent-cyan)] border border-[rgba(0,212,255,0.3)] shadow-sm"
                     : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--card-subtle)] border border-transparent"
                 }`}
               >
-                <Icon size={14} className={`shrink-0 ${isActive ? "text-[var(--accent-cyan)]" : "text-[var(--text-secondary)]"}`} />
-                <span className="shrink-0">{tab.label}</span>
+                <Icon size={15} className={`shrink-0 ${isActive ? "text-[var(--accent-cyan)]" : "text-[var(--text-secondary)]"}`} />
+                <span className="hidden sm:inline shrink-0 whitespace-nowrap">{tab.label}</span>
               </button>
             );
           })}

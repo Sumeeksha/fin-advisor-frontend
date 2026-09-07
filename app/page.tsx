@@ -417,41 +417,41 @@ function WelcomeScreen({ onSelect }: { onSelect: (s: string, n: string) => void 
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-180px)] py-12 px-4 text-center">
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-180px)] py-8 sm:py-12 px-4 text-center">
       {/* Central Glowing Icon Box & Title */}
-      <div className="mb-6">
+      <div className="mb-5 sm:mb-6">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/logo.png"
           alt="FinAdvisor Logo"
-          className="w-20 h-20 rounded-[22px] shadow-[0_12px_36px_rgba(0,115,255,0.42)] mx-auto mb-6 transition-transform hover:scale-105"
+          className="w-16 h-16 sm:w-20 sm:h-20 rounded-[20px] sm:rounded-[22px] shadow-[0_12px_36px_rgba(0,115,255,0.42)] mx-auto mb-4 sm:mb-6 transition-transform hover:scale-105"
         />
 
-        {/* Main Title matching reference screenshot */}
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <h1 className="text-5xl sm:text-6xl font-black tracking-tight text-[#0073ff]">
+        {/* Main Title */}
+        <div className="flex items-center justify-center gap-3 mb-3 sm:mb-4">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-[#0073ff]">
             FinAdvisor
           </h1>
         </div>
 
         {/* Subtitle */}
-        <p className="text-base sm:text-lg text-[var(--text-secondary)] max-w-xl mx-auto leading-relaxed font-normal">
+        <p className="text-sm sm:text-base md:text-lg text-[var(--text-secondary)] max-w-xl mx-auto leading-relaxed font-normal px-2">
           AI-powered stock analysis with real-time quotes, technical indicators, and Buy/Hold/Sell signals.
         </p>
       </div>
 
       {/* Feature Badges Row */}
-      <div className="flex flex-wrap justify-center gap-2.5 my-6">
+      <div className="flex flex-wrap justify-center gap-2 sm:gap-2.5 my-4 sm:my-6 px-2">
         {[
           { label: "Real-Time Quotes", icon: "📈" },
           { label: "AI Signals", icon: "🤖" },
           { label: "RSI · MACD · MA", icon: "🚦" },
           { label: "Price Forecast", icon: "🔮" },
-          { label: "Financials & SEC fillings", icon: "📰" },
+          { label: "Financials & SEC", icon: "📰" },
         ].map((f) => (
           <div
             key={f.label}
-            className="flex items-center gap-1.5 text-xs px-4 py-1.5 rounded-full bg-[rgba(255,255,255,0.03)] border border-[var(--border-color)] font-semibold text-[var(--text-primary)]"
+            className="flex items-center gap-1.5 text-[11px] sm:text-xs px-3 sm:px-4 py-1.5 rounded-full bg-[rgba(255,255,255,0.03)] border border-[var(--border-color)] font-semibold text-[var(--text-primary)] whitespace-nowrap"
           >
             <span>{f.icon}</span>
             <span>{f.label}</span>
@@ -460,36 +460,36 @@ function WelcomeScreen({ onSelect }: { onSelect: (s: string, n: string) => void 
       </div>
 
       {/* Quick Select Section */}
-      <div className="w-full max-w-4xl mt-6">
-        <p className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-6">
+      <div className="w-full max-w-4xl mt-4 sm:mt-6">
+        <p className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-4 sm:mb-6">
           QUICK SELECT
         </p>
 
-        {/* 6 Quick Select Cards Grid (3 columns x 2 rows) */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* 6 Quick Select Cards Grid — 2 cols on mobile, 3 on sm+ */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
           {featuredCards.map((f) => (
             <button
               key={f.symbol}
               id={`quick-${f.symbol}`}
               type="button"
               onClick={() => onSelect(f.symbol, f.name)}
-              className="glass-card p-5 text-left hover:border-[var(--accent-cyan)] transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[110px] group rounded-2xl"
+              className="glass-card p-4 sm:p-5 text-left hover:border-[var(--accent-cyan)] transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[95px] sm:min-h-[110px] group rounded-2xl"
             >
               <div>
-                <div className="font-mono font-bold text-lg text-[var(--accent-cyan)] transition-colors">
+                <div className="font-mono font-bold text-base sm:text-lg text-[var(--accent-cyan)] transition-colors">
                   {f.symbol}
                 </div>
-                <div className="text-xs text-[var(--text-secondary)] font-normal truncate mt-0.5">
+                <div className="text-[11px] sm:text-xs text-[var(--text-secondary)] font-normal truncate mt-0.5">
                   {f.name}
                 </div>
               </div>
 
-              <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-[var(--border-color)]">
-                <span className="font-bold text-base font-mono text-[var(--text-primary)]">
+              <div className="flex items-center justify-between mt-2.5 sm:mt-3 pt-2 sm:pt-2.5 border-t border-[var(--border-color)]">
+                <span className="font-bold text-sm sm:text-base font-mono text-[var(--text-primary)]">
                   {f.price}
                 </span>
                 <span
-                  className={`text-xs font-semibold font-mono px-2 py-0.5 rounded ${f.isUp
+                  className={`text-[10px] sm:text-xs font-semibold font-mono px-1.5 sm:px-2 py-0.5 rounded ${f.isUp
                       ? "bg-[rgba(16,217,138,0.15)] text-[#10d98a]"
                       : "bg-[rgba(255,77,109,0.15)] text-[#ff4d6d]"
                     }`}

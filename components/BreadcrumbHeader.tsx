@@ -15,40 +15,40 @@ export default function BreadcrumbHeader({ ticker, quote, info }: BreadcrumbHead
   const exchange = quote?.exchange || "NASDAQ";
 
   return (
-    <div className="flex items-center justify-between gap-4 flex-wrap text-xs text-[var(--text-secondary)] mb-4">
-      {/* Left: Breadcrumbs */}
-      <div className="flex items-center gap-2 flex-wrap font-medium">
-        <span className="hover:text-[var(--text-primary)] cursor-pointer">Equities</span>
-        <ChevronRight size={12} className="text-[rgba(255,255,255,0.3)]" />
-        <span className="hover:text-[var(--text-primary)] cursor-pointer">{sector}</span>
-        <ChevronRight size={12} className="text-[rgba(255,255,255,0.3)]" />
-        <span className="font-bold text-[var(--text-primary)]">{companyName} ({ticker})</span>
-        <span className="text-[rgba(255,255,255,0.2)]">•</span>
-        <span className="px-2 py-0.5 rounded bg-[rgba(255,255,255,0.04)] border border-[var(--border-color)] font-mono text-[10px] text-[var(--accent-blue)]">
+    <div className="flex items-center justify-between gap-2 sm:gap-4 text-xs text-[var(--text-secondary)] mb-4 min-w-0">
+      {/* Left: Breadcrumbs — truncate on mobile */}
+      <div className="flex items-center gap-1.5 sm:gap-2 font-medium flex-wrap min-w-0">
+        <span className="hidden sm:inline hover:text-[var(--text-primary)] cursor-pointer whitespace-nowrap">Equities</span>
+        <ChevronRight size={12} className="hidden sm:inline text-[rgba(255,255,255,0.3)]" />
+        <span className="hidden sm:inline hover:text-[var(--text-primary)] cursor-pointer whitespace-nowrap">{sector}</span>
+        <ChevronRight size={12} className="hidden sm:inline text-[rgba(255,255,255,0.3)]" />
+        <span className="font-bold text-[var(--text-primary)] truncate max-w-[120px] sm:max-w-none">{companyName} ({ticker})</span>
+        <span className="hidden sm:inline text-[rgba(255,255,255,0.2)]">•</span>
+        <span className="px-1.5 sm:px-2 py-0.5 rounded bg-[rgba(255,255,255,0.04)] border border-[var(--border-color)] font-mono text-[10px] text-[var(--accent-blue)] whitespace-nowrap">
           {exchange}: {ticker}
         </span>
-        <span className="text-[rgba(255,255,255,0.2)]">•</span>
-        <span className="flex items-center gap-1 font-bold text-[#10d98a] bg-[rgba(16,217,138,0.1)] px-2 py-0.5 rounded text-[10px] border border-[rgba(16,217,138,0.25)]">
+        <span className="hidden sm:inline text-[rgba(255,255,255,0.2)]">•</span>
+        <span className="flex items-center gap-1 font-bold text-[#10d98a] bg-[rgba(16,217,138,0.1)] px-1.5 sm:px-2 py-0.5 rounded text-[10px] border border-[rgba(16,217,138,0.25)] whitespace-nowrap">
           <Zap size={10} />
-          14D FORECAST (+1.5%)
+          <span className="hidden xs:inline">14D FORECAST </span>(+1.5%)
         </span>
       </div>
 
-      {/* Right: Actions */}
-      <div className="flex items-center gap-2 flex-wrap">
+      {/* Right: Actions — icon-only on mobile */}
+      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
         <button
           type="button"
-          className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.08)] border border-[var(--border-color)] text-[var(--text-primary)] font-bold transition-all cursor-pointer"
+          className="flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1 rounded-lg bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.08)] border border-[var(--border-color)] text-[var(--text-primary)] font-bold transition-all cursor-pointer"
         >
           <Bell size={13} className="text-[var(--accent-blue)]" />
-          <span>Alert {quote?.price ? `($${quote.price.toFixed(2)})` : ""}</span>
+          <span className="hidden sm:inline">Alert {quote?.price ? `($${quote.price.toFixed(2)})` : ""}</span>
         </button>
         <button
           type="button"
-          className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.08)] border border-[var(--border-color)] text-[var(--text-primary)] font-bold transition-all cursor-pointer"
+          className="flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-lg bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.08)] border border-[var(--border-color)] text-[var(--text-primary)] font-bold transition-all cursor-pointer"
         >
           <Download size={13} />
-          <span>Export</span>
+          <span className="hidden sm:inline">Export</span>
         </button>
         <button
           type="button"

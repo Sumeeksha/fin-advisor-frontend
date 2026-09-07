@@ -42,6 +42,7 @@
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
@@ -56,7 +57,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
+  /* Safe area for phones with notch/home bar */
+  padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* Ensure buttons and interactive elements have minimum 44px touch target on mobile */
+@media (max-width: 640px) {
+  button, [role="button"] {
+    min-height: 36px;
+  }
+}
+
 
 /* ── Grid Background ─────────────────────── */
 .grid-bg {

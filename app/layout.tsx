@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { Viewport } from "next";
 import GoogleAuthProvider from "@/components/GoogleAuthProvider";
 import "./globals.css";
 
@@ -7,6 +8,13 @@ export const metadata: Metadata = {
   description:
     "AI-powered stock analysis platform with real-time quotes, technical indicators (RSI, MACD, Moving Averages), price forecasting, and Buy/Hold/Sell recommendations.",
   keywords: "stock analysis, investment advice, RSI, MACD, technical analysis, financial advisor",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
