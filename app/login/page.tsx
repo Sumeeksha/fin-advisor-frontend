@@ -21,6 +21,7 @@ function LoginForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("Beginner");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +46,7 @@ function LoginForm() {
           setLoading(false);
           return;
         }
-        await registerWithEmail(name, email, password);
+        await registerWithEmail(name, email, password, role);
       } else {
         await loginWithEmail(email, password);
       }
@@ -146,22 +147,38 @@ function LoginForm() {
       {/* Email & Password Form */}
       <form onSubmit={handleEmailAuth} className="w-full flex flex-col gap-4">
         {mode === "signup" && (
-          <div>
-            <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
-              Full Name
-            </label>
-            <div className="relative">
-              <UserIcon className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
-              <input
-                type="text"
-                placeholder="John Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="w-full pl-10 pr-4 py-2.5 bg-[var(--card-subtle)] border border-[var(--border-color)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]"
-              />
+          <>
+            <div>
+              <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
+                Full Name
+              </label>
+              <div className="relative">
+                <UserIcon className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                <input
+                  type="text"
+                  placeholder="John Doe"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="w-full pl-10 pr-4 py-2.5 bg-[var(--card-subtle)] border border-[var(--border-color)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]"
+                />
+              </div>
             </div>
-          </div>
+            <div>
+              <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
+                Investor Role
+              </label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full px-4 py-2.5 bg-[var(--card-subtle)] border border-[var(--border-color)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-[var(--text-primary)]"
+              >
+                <option value="Beginner" className="bg-slate-900">Beginner</option>
+                <option value="Portfolio Pro" className="bg-slate-900">Portfolio Pro</option>
+                <option value="Institutional Investor" className="bg-slate-900">Institutional Investor</option>
+              </select>
+            </div>
+          </>
         )}
 
         <div>

@@ -3,6 +3,8 @@ export interface User {
   email: string;
   name?: string;
   picture?: string;
+  role?: string;
+  created_at?: string;
 }
 
 export interface AuthResponse {
@@ -60,11 +62,11 @@ export async function loginWithGoogle(idToken: string): Promise<AuthResponse> {
   return data;
 }
 
-export async function registerWithEmail(name: string, email: string, password: string): Promise<AuthResponse> {
+export async function registerWithEmail(name: string, email: string, password: string, role?: string): Promise<AuthResponse> {
   const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, email, password }),
+    body: JSON.stringify({ name, email, password, role }),
   });
 
   if (!response.ok) {
@@ -114,4 +116,32 @@ export async function fetchCurrentUser(): Promise<User | null> {
   } catch {
     return getStoredUser();
   }
+}
+
+export async function updateProfile(data: { name?: string; current_password?: string; new_password?: string; role?: string }): Promise<AuthResponse> {
+  const token = getStoredToken();
+  if (!token) throw new Error("Not authenticated");
+
+  const response = await fetch(`${API_BASE_URL}/api/auth/profile`, {
+    method: "PATCH",
+    headers: { 
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}` 
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({ detail: "Profile update failed" }));
+    throw new Error(err.detail || "Profile update failed");
+  }
+
+  const result = await response.json();
+  const authResponse: AuthResponse = {
+    access_token: result.access_token,
+    token_type: "bearer",
+    user: result.user
+  };
+  setSession(authResponse.access_token, authResponse.user);
+  return authResponse;
 }

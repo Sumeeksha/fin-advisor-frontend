@@ -226,7 +226,7 @@ export default function Navbar({ user, onLogout, onSelectTicker, onGoHome }: Nav
             {/* User Profile / Auth State */}
             {user ? (
               <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                <div className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-[rgba(79,128,255,0.15)] to-[rgba(0,212,255,0.15)] border border-[rgba(79,128,255,0.3)]">
+                <Link href="/profile" className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-[rgba(79,128,255,0.15)] to-[rgba(0,212,255,0.15)] border border-[rgba(79,128,255,0.3)] hover:opacity-80 transition-opacity cursor-pointer">
                   {user.picture ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={user.picture} alt={user.name || "User Avatar"} className="w-5 h-5 rounded-full object-cover shrink-0" />
@@ -237,9 +237,9 @@ export default function Navbar({ user, onLogout, onSelectTicker, onGoHome }: Nav
                   )}
                   <div className="hidden sm:block text-left">
                     <span className="block text-xs font-bold text-[var(--text-primary)] leading-tight">{user.name || user.email}</span>
-                    <span className="block text-[9px] font-semibold text-[var(--accent-cyan)] leading-tight">Portfolio Pro</span>
+                    <span className="block text-[9px] font-semibold text-[var(--accent-cyan)] leading-tight">{user.role || "Beginner"}</span>
                   </div>
-                </div>
+                </Link>
                 <button
                   type="button"
                   onClick={onLogout}
