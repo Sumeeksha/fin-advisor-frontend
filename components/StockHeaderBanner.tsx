@@ -71,30 +71,30 @@ export default function StockHeaderBanner({ ticker, quote, info }: StockHeaderBa
         </div>
       </div>
 
-      {/* 8-Metric Grid Cards (4 columns x 2 rows) matching reference design */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 8-Metric Grid Cards — 2 cols on mobile, 4 cols on desktop */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         {/* 1. Open Price */}
-        <div className="glass-subcard p-4 rounded-xl flex flex-col justify-between">
+        <div className="glass-subcard p-3 sm:p-4 rounded-xl flex flex-col justify-between">
           <div>
-            <span className="block text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+            <span className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
               OPEN PRICE
             </span>
-            <span className="block text-xl font-extrabold text-[var(--text-primary)] font-mono">
+            <span className="block text-base sm:text-xl font-extrabold text-[var(--text-primary)] font-mono">
               ${formatPrice(openPrice)}
             </span>
           </div>
-          <span className="text-xs font-semibold text-[#10d98a] mt-2">+0.39% gap up</span>
+          <span className="text-[10px] sm:text-xs font-semibold text-[#10d98a] mt-1.5 sm:mt-2">+0.39% gap up</span>
         </div>
 
         {/* 2. Day Range */}
-        <div className="glass-subcard p-4 rounded-xl flex flex-col justify-between">
+        <div className="glass-subcard p-3 sm:p-4 rounded-xl flex flex-col justify-between">
           <div>
-            <div className="flex justify-between text-[11px] font-bold text-[var(--text-secondary)] mb-1">
+            <div className="flex justify-between text-[10px] sm:text-[11px] font-bold text-[var(--text-secondary)] mb-1">
               <span>DAY RANGE</span>
-              <span className="text-[var(--accent-cyan)] font-mono">56% span</span>
+              <span className="text-[var(--accent-cyan)] font-mono">56%</span>
             </div>
-            <span className="block text-sm font-bold text-[var(--text-primary)] font-mono mb-2">
-              ${formatPrice(dayLow)} - ${formatPrice(dayHigh)}
+            <span className="block text-xs sm:text-sm font-bold text-[var(--text-primary)] font-mono mb-2">
+              ${formatPrice(dayLow)} – ${formatPrice(dayHigh)}
             </span>
           </div>
           <div className="relative w-full h-1.5 rounded-full bg-[var(--border-color)] overflow-hidden">
@@ -106,14 +106,14 @@ export default function StockHeaderBanner({ ticker, quote, info }: StockHeaderBa
         </div>
 
         {/* 3. 52W Range */}
-        <div className="glass-subcard p-4 rounded-xl flex flex-col justify-between">
+        <div className="glass-subcard p-3 sm:p-4 rounded-xl flex flex-col justify-between">
           <div>
-            <div className="flex justify-between text-[11px] font-bold text-[var(--text-secondary)] mb-1">
+            <div className="flex justify-between text-[10px] sm:text-[11px] font-bold text-[var(--text-secondary)] mb-1">
               <span>52W RANGE</span>
-              <span className="text-[#10d98a] font-mono">UPPER RANGE</span>
+              <span className="text-[#10d98a] font-mono hidden sm:inline">UPPER</span>
             </div>
-            <span className="block text-sm font-bold text-[var(--text-primary)] font-mono mb-2">
-              ${formatPrice(low52w)} - ${formatPrice(high52w)}
+            <span className="block text-xs sm:text-sm font-bold text-[var(--text-primary)] font-mono mb-2">
+              ${formatPrice(low52w)} – ${formatPrice(high52w)}
             </span>
           </div>
           <div className="relative w-full h-1.5 rounded-full bg-[var(--border-color)] overflow-hidden">
@@ -125,71 +125,71 @@ export default function StockHeaderBanner({ ticker, quote, info }: StockHeaderBa
         </div>
 
         {/* 4. Volume */}
-        <div className="glass-subcard p-4 rounded-xl flex flex-col justify-between">
+        <div className="glass-subcard p-3 sm:p-4 rounded-xl flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-center mb-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                 VOLUME
               </span>
-              <span className="text-[10px] font-bold font-mono text-[#10d98a]">1.2X 20D AVG</span>
+              <span className="text-[9px] sm:text-[10px] font-bold font-mono text-[#10d98a]">1.2X AVG</span>
             </div>
-            <span className="block text-xl font-extrabold text-[var(--text-primary)] font-mono">
+            <span className="block text-base sm:text-xl font-extrabold text-[var(--text-primary)] font-mono">
               {(volume / 1e6).toFixed(2)}M
             </span>
           </div>
-          <span className="text-xs font-medium text-[var(--text-secondary)] mt-2">Avg: 35.80M shares</span>
+          <span className="text-[10px] sm:text-xs font-medium text-[var(--text-secondary)] mt-1.5 sm:mt-2">Avg: 35.80M</span>
         </div>
 
         {/* 5. Market Cap */}
-        <div className="glass-subcard p-4 rounded-xl flex flex-col justify-between">
+        <div className="glass-subcard p-3 sm:p-4 rounded-xl flex flex-col justify-between">
           <div>
-            <span className="block text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
-              MARKET CAPITALIZATION
+            <span className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+              MKT CAP
             </span>
-            <span className="block text-xl font-extrabold text-[var(--text-primary)] font-mono">
+            <span className="block text-base sm:text-xl font-extrabold text-[var(--text-primary)] font-mono">
               {formatLargeNumber(marketCap)}
             </span>
           </div>
-          <span className="text-xs font-semibold text-[var(--accent-cyan)] mt-2">Rank #2 Global Equities</span>
+          <span className="text-[10px] sm:text-xs font-semibold text-[var(--accent-cyan)] mt-1.5 sm:mt-2">Rank #2 Global</span>
         </div>
 
         {/* 6. P/E • Forward P/E */}
-        <div className="glass-subcard p-4 rounded-xl flex flex-col justify-between">
+        <div className="glass-subcard p-3 sm:p-4 rounded-xl flex flex-col justify-between">
           <div>
-            <span className="block text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
-              P/E • FORWARD P/E
+            <span className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+              P/E · FWD P/E
             </span>
-            <span className="block text-xl font-extrabold text-[var(--text-primary)] font-mono">
+            <span className="block text-base sm:text-xl font-extrabold text-[var(--text-primary)] font-mono">
               {peRatio.toFixed(1)} | {(peRatio * 0.91).toFixed(1)}
             </span>
           </div>
-          <span className="text-xs font-medium text-[var(--text-secondary)] mt-2">Sector Median: 24.8</span>
+          <span className="text-[10px] sm:text-xs font-medium text-[var(--text-secondary)] mt-1.5 sm:mt-2">Sector: 24.8</span>
         </div>
 
         {/* 7. EPS (TTM) */}
-        <div className="glass-subcard p-4 rounded-xl flex flex-col justify-between">
+        <div className="glass-subcard p-3 sm:p-4 rounded-xl flex flex-col justify-between">
           <div>
-            <span className="block text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+            <span className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
               EPS (TTM)
             </span>
-            <span className="block text-xl font-extrabold text-[var(--text-primary)] font-mono">
+            <span className="block text-base sm:text-xl font-extrabold text-[var(--text-primary)] font-mono">
               ${eps.toFixed(2)}
             </span>
           </div>
-          <span className="text-xs font-semibold text-[#10d98a] mt-2">+11.8% YoY growth</span>
+          <span className="text-[10px] sm:text-xs font-semibold text-[#10d98a] mt-1.5 sm:mt-2">+11.8% YoY</span>
         </div>
 
         {/* 8. Day High / Low */}
-        <div className="glass-subcard p-4 rounded-xl flex flex-col justify-between">
+        <div className="glass-subcard p-3 sm:p-4 rounded-xl flex flex-col justify-between">
           <div>
-            <span className="block text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
-              DAY HIGH / LOW
+            <span className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+              DAY HI / LO
             </span>
-            <span className="block text-lg font-extrabold text-[var(--text-primary)] font-mono">
+            <span className="block text-sm sm:text-lg font-extrabold text-[var(--text-primary)] font-mono">
               ${formatPrice(dayHigh)} / ${formatPrice(dayLow)}
             </span>
           </div>
-          <span className="text-xs font-medium text-[var(--text-secondary)] mt-2">Spread: $2.85 (1.54%)</span>
+          <span className="text-[10px] sm:text-xs font-medium text-[var(--text-secondary)] mt-1.5 sm:mt-2">Spread: 1.54%</span>
         </div>
       </div>
     </div>
