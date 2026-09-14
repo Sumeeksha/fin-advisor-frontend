@@ -37,7 +37,8 @@ export default function DashboardPage() {
   const [tickerName, setTickerName] = useState("");
   const [period, setPeriod] = useState("3M");
   const [activeTab, setActiveTab] = useState<SubTabId>("overview");
-  const [selectedModel, setSelectedModel] = useState<"dual" | "gpt4o" | "gemini">("dual");
+  type ModelKey = "dual" | "gpt4o" | "gemini" | "claude" | "deepseek" | "bloomberg" | "fingpt" | "finma" | "alli";
+  const [selectedModel, setSelectedModel] = useState<ModelKey>("dual");
 
   // Data states
   const [quote, setQuote] = useState<QuoteData | null>(null);
@@ -110,7 +111,7 @@ export default function DashboardPage() {
     }
   }, []);
 
-  const fetchInsightData = useCallback(async (t: string, m: "dual" | "gpt4o" | "gemini") => {
+  const fetchInsightData = useCallback(async (t: string, m: ModelKey) => {
     setLoadingInsight(true);
     try {
       const data = await api.getInsight(t, "Moderate", m);
@@ -120,7 +121,7 @@ export default function DashboardPage() {
     }
   }, []);
 
-  const fetchAll = useCallback(async (t: string, m: "dual" | "gpt4o" | "gemini" = selectedModel) => {
+  const fetchAll = useCallback(async (t: string, m: ModelKey = selectedModel) => {
     setLoadingIndicators(true);
     setLoadingAdvice(true);
     setLoadingForecast(true);
@@ -187,7 +188,7 @@ export default function DashboardPage() {
   }, [fetchAll, fetchHistory, period, router, selectedModel]);
 
   // Handle Model change
-  const handleModelChange = (m: "dual" | "gpt4o" | "gemini") => {
+  const handleModelChange = (m: ModelKey) => {
     setSelectedModel(m);
     if (ticker) {
       fetchInsightData(ticker, m);
@@ -304,7 +305,7 @@ export default function DashboardPage() {
               {activeTab === "forecast" && (
                 <div className="space-y-6">
                   {/* 1. AI Hybrid Pipeline Architecture Diagram */}
-                  <AIHybridPipelineBanner stages={insight?.pipeline_stages} />
+                  <AIHybridPipelineBanner stages={insight?.pipeline_stages} ticker={ticker} />
 
                   {/* 2. Multi-Model AI Consensus Engine Panel */}
                   <QuantitativeVsLLMPanel
