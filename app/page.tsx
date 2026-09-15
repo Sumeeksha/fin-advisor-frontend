@@ -37,7 +37,7 @@ export default function DashboardPage() {
   const [tickerName, setTickerName] = useState("");
   const [period, setPeriod] = useState("3M");
   const [activeTab, setActiveTab] = useState<SubTabId>("overview");
-  type ModelKey = "dual" | "gpt4o" | "gemini" | "claude" | "deepseek" | "bloomberg" | "fingpt" | "finma" | "alli";
+  type ModelKey = "dual" | "gpt4o" | "gemini" | "claude" | "deepseek" | "fingpt" | "finma" | "alli";
   const [selectedModel, setSelectedModel] = useState<ModelKey>("dual");
 
   // Data states

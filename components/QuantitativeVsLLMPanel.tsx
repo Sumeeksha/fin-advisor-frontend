@@ -19,7 +19,6 @@ import {
 
 export type ModelKey =
   | "dual"
-  | "bloomberg"
   | "fingpt"
   | "finma"
   | "alli"
@@ -65,7 +64,7 @@ export default function QuantitativeVsLLMPanel({
   const [activeFilter, setActiveFilter] = useState<FilterCategory>("all");
   const [showModelDropdown, setShowModelDropdown] = useState(false);
   const [activeModels, setActiveModels] = useState<Set<ModelKey>>(
-    new Set(["bloomberg", "fingpt", "finma", "alli", "gpt4o", "gemini"])
+    new Set(["fingpt", "finma", "alli", "gpt4o", "gemini"])
   );
 
   // ── Quantitative values ───────────────────────────────────────
@@ -92,23 +91,6 @@ export default function QuantitativeVsLLMPanel({
 
   // ── Model Card Definitions (Matching User Screenshot Exact Design) ───────
   const modelsList: ModelCardDefinition[] = [
-    {
-      key: "bloomberg",
-      category: "domain",
-      name: "BloombergGPT",
-      arch: "(50B Financial)",
-      subtitle: "Domain-Specific Financial Foundation",
-      dotBg: "bg-emerald-500 dark:bg-emerald-400",
-      badgeText: "88% INSTITUTIONAL BUY",
-      badgeStyle: "bg-emerald-100/70 text-emerald-800 font-bold border-0 dark:bg-[rgba(16,217,138,0.15)] dark:text-[#10d98a]",
-      thesis: "Trained on Bloomberg financial archives. Identifies strong institutional order flow and SEC filing alignment. Operating margin expansion outweighs Capex concerns.",
-      tags: ["Order Flow Matrix", "10-Q Text Mining", "High Confidence"],
-      targetPrice: `$${(currentPrice * 1.025).toFixed(2)}`,
-      targetPct: "+2.5%",
-      stopPrice: `$${(currentPrice * 0.909).toFixed(2)}`,
-      stopPct: "-9.1%",
-      footerMeta: "R:R Ratio: 1 : 2.8",
-    },
     {
       key: "fingpt",
       category: "domain",
@@ -480,7 +462,7 @@ export default function QuantitativeVsLLMPanel({
                       // 3rd tag gets custom colored pill based on model accent
                       let tagStyle = "bg-slate-100/80 text-slate-600 border border-slate-200/60 font-semibold";
                       if (idx === 2) {
-                        if (m.key === "bloomberg" || m.key === "gpt4o") tagStyle = "bg-emerald-100/80 text-emerald-800 border border-emerald-200/60 font-bold";
+                        if (m.key === "gpt4o") tagStyle = "bg-emerald-100/80 text-emerald-800 border border-emerald-200/60 font-bold";
                         else if (m.key === "fingpt") tagStyle = "bg-sky-100/80 text-sky-800 border border-sky-200/60 font-bold";
                         else if (m.key === "finma") tagStyle = "bg-amber-100/80 text-amber-800 border border-amber-200/60 font-bold";
                         else if (m.key === "alli") tagStyle = "bg-indigo-100/80 text-indigo-800 border border-indigo-200/60 font-bold";
@@ -579,7 +561,7 @@ export default function QuantitativeVsLLMPanel({
                   Consensus Target Portfolio Allocation
                 </h4>
                 <p className="text-[11px] text-slate-500 dark:text-[var(--text-secondary)]">
-                  Synthesized portfolio weighting across 6 active neural & financial models
+                  Synthesized portfolio weighting across active neural & financial models
                 </p>
               </div>
             </div>
@@ -706,7 +688,7 @@ export default function QuantitativeVsLLMPanel({
                         confidence_corridor: { lower_95: lower95.toFixed(2) },
                       },
                       prompt_instructions:
-                        "Act as an institutional financial advisor. Decompose multi-model quantitative thesis across BloombergGPT, FinGPT, FinMA, Alli Finance, GPT-4o, and Gemini 1.5 Pro.",
+                        "Act as an institutional financial advisor. Decompose multi-model quantitative thesis across FinGPT, FinMA, Alli Finance, GPT-4o, and Gemini 1.5 Pro.",
                     },
                     null,
                     2
