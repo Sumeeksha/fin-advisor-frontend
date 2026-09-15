@@ -165,6 +165,9 @@ export interface InsightData {
   risk_profile: string;
   selected_model?: string;
   llm_insight: LLMInsight;
+  data_source?: string;
+  tradingview_unavailable?: boolean;
+  fallback_options?: string[];
   consensus?: ConsensusData;
   pipeline_stages?: PipelineStage[];
   risk_tags?: string[];
@@ -247,16 +250,16 @@ export const api = {
   getQuote: (ticker: string) =>
     fetchApi<QuoteData>(`/api/stocks/${ticker}/quote`),
 
-  getHistory: (ticker: string, period: string) =>
-    fetchApi<{ ticker: string; period: string; data: OHLCVBar[] }>(
-      `/api/stocks/${ticker}/history?period=${period}`
+  getHistory: (ticker: string, period: string, source: string = "yfinance") =>
+    fetchApi<{ ticker: string; period: string; source?: string; data: OHLCVBar[] }>(
+      `/api/stocks/${ticker}/history?period=${period}&source=${source}`
     ),
 
   getCompanyInfo: (ticker: string) =>
     fetchApi<CompanyInfo>(`/api/stocks/${ticker}/info`),
 
-  getIndicators: (ticker: string) =>
-    fetchApi<IndicatorData>(`/api/indicators/${ticker}?period=3M`),
+  getIndicators: (ticker: string, period: string = "3M", source: string = "yfinance") =>
+    fetchApi<IndicatorData>(`/api/indicators/${ticker}?period=${period}&source=${source}`),
 
   getAdvice: (ticker: string) =>
     fetchApi<AdviceData>(`/api/advice/${ticker}`),
@@ -267,9 +270,9 @@ export const api = {
   getNews: (ticker: string) =>
     fetchApi<{ ticker: string; news: NewsItem[] }>(`/api/news/${ticker}`),
 
-  getInsight: (ticker: string, riskProfile: string = "Moderate", model: string = "dual") =>
+  getInsight: (ticker: string, riskProfile: string = "Moderate", model: string = "dual", source: string = "tradingview") =>
     fetchApi<InsightData>(
-      `/api/insight/${ticker}?risk_profile=${encodeURIComponent(riskProfile)}&model=${encodeURIComponent(model)}`
+      `/api/insight/${ticker}?risk_profile=${encodeURIComponent(riskProfile)}&model=${encodeURIComponent(model)}&source=${encodeURIComponent(source)}`
     ),
 };
 

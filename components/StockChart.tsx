@@ -31,6 +31,7 @@ import {
   Layers,
   Activity,
   TrendingUp,
+  Database,
 } from "lucide-react";
 
 ChartJS.register(
@@ -53,6 +54,8 @@ interface StockChartProps {
   ticker: string;
   forecast?: ForecastData | null;
   indicators?: IndicatorData | null;
+  dataSource?: string;
+  onDataSourceChange?: (source: string) => void;
 }
 
 const PERIODS = ["1D", "1W", "1M", "3M", "1Y", "5Y"];
@@ -65,6 +68,8 @@ export default function StockChart({
   ticker,
   forecast,
   indicators,
+  dataSource = "yfinance",
+  onDataSourceChange,
 }: StockChartProps) {
   const [chartType, setChartType] = useState<"line" | "candle">("candle");
   const [showVolume, setShowVolume] = useState(true);
@@ -899,8 +904,26 @@ export default function StockChart({
           </div>
         </div>
 
-        {/* Right: Timeframe & Zoom Controls */}
+        {/* Right: Timeframe & Data Source & Zoom Controls */}
         <div className="flex items-center gap-2 flex-wrap">
+          {/* Data Source Selector Dropdown */}
+          <div className="flex items-center gap-1.5 bg-[var(--card-subtle)] border border-[var(--border-color)] rounded-xl px-2 py-1">
+            <Database className="w-3.5 h-3.5 text-[var(--accent-blue)]" />
+            <span className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Source:</span>
+            <select
+              value={dataSource}
+              onChange={(e) => onDataSourceChange?.(e.target.value)}
+              className="bg-transparent text-xs font-bold text-[var(--text-primary)] cursor-pointer focus:outline-none pr-1"
+            >
+              <option value="yfinance" className="bg-[var(--card-bg)] text-[var(--text-primary)]">
+                Yahoo Finance
+              </option>
+              <option value="tradingview" className="bg-[var(--card-bg)] text-[var(--text-primary)]">
+                TradingView
+              </option>
+            </select>
+          </div>
+
           {/* Timeframe Selector */}
           <div className="flex gap-1 bg-[var(--card-subtle)] border border-[var(--border-color)] rounded-xl p-1">
             {PERIODS.map((p) => (

@@ -18,6 +18,8 @@ import MultiFactorSignalStrip from "@/components/MultiFactorSignalStrip";
 import AIChatPanel from "@/components/AIChatPanel";
 import StockChart from "@/components/StockChart";
 import Footer from "@/components/Footer";
+import DataSourceFallbackModal from "@/components/DataSourceFallbackModal";
+
 
 import IndicatorPanel from "@/components/IndicatorPanel";
 import AdvicePanel from "@/components/AdvicePanel";
@@ -58,6 +60,12 @@ export default function DashboardPage() {
   const [loadingForecast, setLoadingForecast] = useState(false);
   const [loadingNews, setLoadingNews] = useState(false);
   const [loadingInsight, setLoadingInsight] = useState(false);
+
+  // TradingView fallback notification state
+  const [tvFallbackVisible, setTvFallbackVisible] = useState(false);
+  const [tvFallbackSource, setTvFallbackSource] = useState("");
+  const [tvFallbackOptions, setTvFallbackOptions] = useState<string[]>([]);
+  const [chartSource, setChartSource] = useState<string>("yfinance");
 
   const [error, setError] = useState<string | null>(null);
   const refreshRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
@@ -101,10 +109,10 @@ export default function DashboardPage() {
     }
   }, []);
 
-  const fetchHistory = useCallback(async (t: string, p: string) => {
+  const fetchHistory = useCallback(async (t: string, p: string, s: string = "yfinance") => {
     setLoadingHistory(true);
     try {
-      const data = await api.getHistory(t, p);
+      const data = await api.getHistory(t, p, s);
       setHistory(data.data);
     } catch { /* silent */ } finally {
       setLoadingHistory(false);
@@ -114,12 +122,18 @@ export default function DashboardPage() {
   const fetchInsightData = useCallback(async (t: string, m: ModelKey) => {
     setLoadingInsight(true);
     try {
-      const data = await api.getInsight(t, "Moderate", m);
+      const data = await api.getInsight(t, "Moderate", m, chartSource);
       setInsight(data);
+      // Show fallback modal if TradingView is unavailable
+      if (data?.tradingview_unavailable) {
+        setTvFallbackSource(data.data_source || "Sandbox Mode");
+        setTvFallbackOptions(data.fallback_options || ["yfinance", "finnhub"]);
+        setTvFallbackVisible(true);
+      }
     } catch { /* silent */ } finally {
       setLoadingInsight(false);
     }
-  }, []);
+  }, [chartSource]);
 
   const fetchAll = useCallback(async (t: string, m: ModelKey = selectedModel) => {
     setLoadingIndicators(true);
@@ -132,7 +146,7 @@ export default function DashboardPage() {
 
     api.getCompanyInfo(t).then(setInfo).catch(() => { });
 
-    api.getIndicators(t)
+    api.getIndicators(t, "3M", chartSource)
       .then(setIndicators)
       .catch(() => { })
       .finally(() => setLoadingIndicators(false));
@@ -184,8 +198,8 @@ export default function DashboardPage() {
     } catch { /* ignore */ }
 
     fetchAll(symbol, selectedModel);
-    fetchHistory(symbol, period);
-  }, [fetchAll, fetchHistory, period, router, selectedModel]);
+    fetchHistory(symbol, period, chartSource);
+  }, [fetchAll, fetchHistory, period, chartSource, router, selectedModel]);
 
   // Handle Model change
   const handleModelChange = (m: ModelKey) => {
@@ -229,8 +243,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!ticker) return;
-    fetchHistory(ticker, period);
-  }, [period, ticker, fetchHistory]);
+    fetchHistory(ticker, period, chartSource);
+  }, [period, ticker, chartSource, fetchHistory]);
 
   useEffect(() => {
     if (!ticker) return;
@@ -242,6 +256,18 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-sans flex flex-col justify-between selection:bg-[var(--accent-cyan)] selection:text-slate-950">
+      {/* ── TradingView Unavailable Fallback Modal ── */}
+      <DataSourceFallbackModal
+        visible={tvFallbackVisible}
+        currentSource={tvFallbackSource}
+        fallbackOptions={tvFallbackOptions}
+        onDismiss={() => setTvFallbackVisible(false)}
+        onSelectFallback={(source) => {
+          // User selected a fallback; log preference for future use
+          console.info(`[DataSource] User selected fallback: ${source}`);
+          setTvFallbackVisible(false);
+        }}
+      />
       <div>
         {/* ── Top Navigation Header ── */}
         <Navbar
@@ -288,6 +314,14 @@ export default function DashboardPage() {
                     ticker={ticker}
                     forecast={forecast}
                     indicators={indicators}
+                    dataSource={chartSource}
+                    onDataSourceChange={(s) => {
+                      setChartSource(s);
+                      if (ticker) {
+                        fetchHistory(ticker, period, s);
+                        api.getIndicators(ticker, "3M", s).then(setIndicators).catch(() => {});
+                      }
+                    }}
                   />
                 </>
               )}
@@ -327,6 +361,14 @@ export default function DashboardPage() {
                     ticker={ticker}
                     forecast={forecast}
                     indicators={indicators}
+                    dataSource={chartSource}
+                    onDataSourceChange={(s) => {
+                      setChartSource(s);
+                      if (ticker) {
+                        fetchHistory(ticker, period, s);
+                        api.getIndicators(ticker, "3M", s).then(setIndicators).catch(() => {});
+                      }
+                    }}
                   />
                 </div>
               )}
