@@ -1,11 +1,18 @@
-// API client — communicates with FastAPI backend
+import { getUserId } from "./user";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-async function fetchApi<T>(path: string): Promise<T> {
+async function fetchApi<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    "X-User-ID": getUserId(),
+    ...(options.headers || {}),
+  };
+
   const res = await fetch(`${BASE_URL}${path}`, {
     cache: "no-store",
-    headers: { "Content-Type": "application/json" },
+    ...options,
+    headers,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: "Unknown error" }));
@@ -81,6 +88,8 @@ export interface IndicatorData {
     current: number | null;
     avg_20d: number | null;
     relative: number | null;
+    buyer_inflow_pct?: number;
+    seller_outflow_pct?: number;
   };
   trend: string;
   current_price: number;
@@ -203,6 +212,7 @@ export interface ForecastData {
     projected_change_pct: number;
     direction: string;
     outlook: string;
+    autoregressive_confidence?: number;
   };
   disclaimer: string;
 }
@@ -240,6 +250,12 @@ export interface CompanyInfo {
   country: string;
 }
 
+export interface WatchlistItem {
+  id: number;
+  ticker: string;
+  added_at: string;
+}
+
 export const api = {
   searchTickers: (q: string) =>
     fetchApi<{ results: SearchResult[] }>(`/api/stocks/search?q=${encodeURIComponent(q)}`),
@@ -258,7 +274,7 @@ export const api = {
   getCompanyInfo: (ticker: string) =>
     fetchApi<CompanyInfo>(`/api/stocks/${ticker}/info`),
 
-  getIndicators: (ticker: string, period: string = "3M", source: string = "yfinance") =>
+  getIndicators: (ticker: string, period: string = "3M", source: string = "tradingview") =>
     fetchApi<IndicatorData>(`/api/indicators/${ticker}?period=${period}&source=${source}`),
 
   getAdvice: (ticker: string) =>
@@ -274,6 +290,25 @@ export const api = {
     fetchApi<InsightData>(
       `/api/insight/${ticker}?risk_profile=${encodeURIComponent(riskProfile)}&model=${encodeURIComponent(model)}&source=${encodeURIComponent(source)}`
     ),
+
+  getWatchlist: () => 
+    fetchApi<WatchlistItem[]>('/api/watchlist'),
+    
+  addToWatchlist: (ticker: string) => {
+    // Dynamically require to avoid circular dependencies if any
+    const { getStoredUser } = require('./auth');
+    const user = getStoredUser();
+    return fetchApi<{ message: string }>(`/api/watchlist/${ticker}`, { 
+      method: 'POST',
+      body: JSON.stringify({
+        user_name: user?.name || null,
+        user_email: user?.email || null
+      })
+    });
+  },
+    
+  removeFromWatchlist: (ticker: string) => 
+    fetchApi<{ message: string }>(`/api/watchlist/${ticker}`, { method: 'DELETE' }),
 };
 
 // ── Formatting helpers ────────────────────────

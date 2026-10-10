@@ -65,7 +65,7 @@ export default function DashboardPage() {
   const [tvFallbackVisible, setTvFallbackVisible] = useState(false);
   const [tvFallbackSource, setTvFallbackSource] = useState("");
   const [tvFallbackOptions, setTvFallbackOptions] = useState<string[]>([]);
-  const [chartSource, setChartSource] = useState<string>("yfinance");
+  const [chartSource, setChartSource] = useState<string>("tradingview");
 
   const [error, setError] = useState<string | null>(null);
   const refreshRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);

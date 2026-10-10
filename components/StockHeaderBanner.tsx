@@ -1,7 +1,8 @@
 "use client";
 
-import { QuoteData, CompanyInfo, formatLargeNumber, formatPrice } from "@/lib/api";
-import { TrendingUp, TrendingDown, Layers, ShieldCheck, Activity } from "lucide-react";
+import { useState, useEffect } from "react";
+import { api, QuoteData, CompanyInfo, formatLargeNumber, formatPrice } from "@/lib/api";
+import { TrendingUp, TrendingDown, Layers, ShieldCheck, Activity, Star } from "lucide-react";
 
 interface StockHeaderBannerProps {
   ticker: string;
@@ -30,6 +31,43 @@ export default function StockHeaderBanner({ ticker, quote, info }: StockHeaderBa
   const dayRangePct = Math.min(100, Math.max(0, ((price - dayLow) / (dayHigh - dayLow || 1)) * 100));
   const yearRangePct = Math.min(100, Math.max(0, ((price - low52w) / (high52w - low52w || 1)) * 100));
 
+  const [inWatchlist, setInWatchlist] = useState(false);
+  const [loadingWatchlist, setLoadingWatchlist] = useState(false);
+
+  useEffect(() => {
+    const checkWatchlist = async () => {
+      try {
+        const list = await api.getWatchlist();
+        setInWatchlist(list.some(item => item.ticker === ticker));
+      } catch {
+        /* ignore */
+      }
+    };
+    checkWatchlist();
+
+    const handleUpdate = () => checkWatchlist();
+    window.addEventListener("watchlist-updated", handleUpdate);
+    return () => window.removeEventListener("watchlist-updated", handleUpdate);
+  }, [ticker]);
+
+  const toggleWatchlist = async () => {
+    if (loadingWatchlist) return;
+    setLoadingWatchlist(true);
+    try {
+      if (inWatchlist) {
+        await api.removeFromWatchlist(ticker);
+      } else {
+        await api.addToWatchlist(ticker);
+      }
+      setInWatchlist(!inWatchlist);
+      window.dispatchEvent(new Event("watchlist-updated"));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingWatchlist(false);
+    }
+  };
+
   return (
     <div className="glass-card p-4 sm:p-6 mb-6">
       {/* Top Title & Price Summary — stacks vertically on mobile */}
@@ -37,9 +75,18 @@ export default function StockHeaderBanner({ ticker, quote, info }: StockHeaderBa
         {/* Title row */}
         <div>
           <div className="flex flex-wrap items-start gap-2 mb-1">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[var(--text-primary)] tracking-tight leading-tight">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[var(--text-primary)] tracking-tight leading-tight flex items-center gap-3">
               {(quote?.name && quote.name !== ticker) ? quote.name : (info?.name && info.name !== ticker) ? info.name : ticker}{" "}
               <span className="text-[var(--text-secondary)] font-semibold">({ticker})</span>
+              <button
+                type="button"
+                onClick={toggleWatchlist}
+                disabled={loadingWatchlist}
+                className={`transition-colors ${inWatchlist ? 'text-yellow-400' : 'text-[var(--text-secondary)] hover:text-yellow-400'}`}
+                title={inWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}
+              >
+                <Star size={24} fill={inWatchlist ? "currentColor" : "none"} />
+              </button>
             </h1>
             <span className="shrink-0 self-start px-2 py-0.5 rounded-full text-[10px] font-bold bg-[rgba(0,212,255,0.1)] text-[var(--accent-cyan)] border border-[rgba(0,212,255,0.3)] whitespace-nowrap">
               BETA 20D: 1.25 Moderate

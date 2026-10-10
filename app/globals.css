@@ -416,3 +416,76 @@ body {
   border: 1px solid #cbd5e1;
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
+
+/* ── Price & Trend Indicator Utility Classes ────── */
+.price-up {
+  color: var(--color-bull);
+}
+.price-down {
+  color: var(--color-bear);
+}
+.price-neutral {
+  color: var(--color-neutral);
+}
+
+/* ── RSI Gauge Bar ────────────────────────────── */
+.rsi-bar {
+  background: linear-gradient(
+    to right,
+    #10b981 0%,
+    #10b981 30%,
+    #38bdf8 30%,
+    #38bdf8 70%,
+    #f43f5e 70%,
+    #f43f5e 100%
+  );
+  border-radius: 9999px;
+  height: 6px;
+  position: relative;
+}
+
+[data-theme="light"] .rsi-bar, .light .rsi-bar {
+  background: linear-gradient(
+    to right,
+    #137333 0%,
+    #137333 30%,
+    #2563eb 30%,
+    #2563eb 70%,
+    #c5221f 70%,
+    #c5221f 100%
+  );
+}
+
+/* ── Confidence Bar Fill ──────────────────────── */
+.confidence-bar-fill {
+  transition: width 1s ease-out;
+  border-radius: 9999px;
+}
+
+/* ── Shimmer Loading Effect ───────────────────── */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 75%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+[data-theme="light"] .shimmer, .light .shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.03) 25%,
+    rgba(0, 0, 0, 0.07) 50%,
+    rgba(0, 0, 0, 0.03) 75%
+  );
+  background-size: 400% 100%;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

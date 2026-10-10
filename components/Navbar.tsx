@@ -6,6 +6,7 @@ import { User } from "@/lib/auth";
 import { Bell, Bookmark, LogOut, Clock, Sparkles, ChevronDown } from "lucide-react";
 import SearchBar from "./SearchBar";
 import ThemeToggle from "./ThemeToggle";
+import WatchlistDropdown from "./WatchlistDropdown";
 
 interface NavbarProps {
   user: User | null;
@@ -199,14 +200,7 @@ export default function Navbar({ user, onLogout, onSelectTicker, onGoHome }: Nav
             <span className="hidden md:block w-px h-5 bg-[var(--border-color)] opacity-60" />
 
             {/* ── 2. Watchlist (Hidden on mobile/small viewports) ── */}
-            <button
-              type="button"
-              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--card-subtle)] border border-[var(--border-color)] transition-all cursor-pointer"
-              title="Watchlist"
-            >
-              <Bookmark size={14} className="text-[var(--accent-cyan)]" />
-              <span>Watchlist</span>
-            </button>
+            <WatchlistDropdown onSelectTicker={onSelectTicker} />
 
             {/* ── 3. Notifications ── */}
             <button
