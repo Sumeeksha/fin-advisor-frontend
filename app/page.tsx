@@ -25,6 +25,7 @@ import IndicatorPanel from "@/components/IndicatorPanel";
 import AdvicePanel from "@/components/AdvicePanel";
 import ForecastChart from "@/components/ForecastChart";
 import NewsPanel from "@/components/NewsPanel";
+import InvestmentMemo from "@/components/InvestmentMemo";
 
 import { TrendingUp, Cpu, Activity, Sparkles } from "lucide-react";
 
@@ -401,6 +402,10 @@ export default function DashboardPage() {
                     Institutional block trade tracking active for {ticker}.
                   </p>
                 </div>
+              )}
+
+              {activeTab === "memo" && (
+                <InvestmentMemo ticker={ticker} />
               )}
             </>
           )}

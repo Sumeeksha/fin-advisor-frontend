@@ -226,6 +226,68 @@ export interface NewsItem {
   image: string;
 }
 
+export interface MemoData {
+  ticker: string;
+  generated_at: string;
+  risk_profile: string;
+  time_horizon: string;
+  is_fallback: boolean;
+  market_snapshot: {
+    current_price: number;
+    day_range: string;
+    market_cap: number | null;
+    volume: number | null;
+    change: number;
+    change_pct: number;
+    exchange: string;
+    currency: string;
+  };
+  technical_snapshot: {
+    price: number;
+    sma_50: number | null;
+    sma_200: number | null;
+    rsi: number | null;
+    rsi_signal: string | null;
+    macd_crossover: string | null;
+    golden_cross: string | null;
+    bb_upper: number | null;
+    bb_lower: number | null;
+    price_vs_sma50: number | null;
+    price_vs_sma200: number | null;
+  };
+  forecast_snapshot: {
+    projected_price: number | null;
+    projected_change_pct: number;
+    direction: string;
+    outlook: string;
+    confidence_corridor: { lower_95?: number; spot?: number; upper_95?: number };
+    method: string;
+  };
+  memo: {
+    consensus_rating: string;
+    recommended_action: string;
+    entry_zone_low: number;
+    entry_zone_high: number;
+    target_12m_low: number;
+    target_12m_high: number;
+    stop_loss: number;
+    technical_context: string;
+    fundamental_summary: string;
+    revenue_margin_growth?: string;
+    free_cash_flow_leverage?: string;
+    key_risks_disclosures?: string[];
+    valuation_summary: string;
+    multiples_analysis?: string;
+    fair_value_estimate?: string;
+    moat_and_catalysts: string;
+    key_risks: string[];
+    final_thesis: string;
+    disclaimer: string;
+    llm_provider: string;
+    is_fallback?: boolean;
+  };
+}
+
 export interface SearchResult {
   symbol: string;
   name: string;
@@ -285,6 +347,16 @@ export const api = {
 
   getNews: (ticker: string) =>
     fetchApi<{ ticker: string; news: NewsItem[] }>(`/api/news/${ticker}`),
+
+  getMemo: (
+    ticker: string,
+    riskProfile: string = "Moderate",
+    timeHorizon: string = "12-Month",
+    source: string = "yfinance"
+  ) =>
+    fetchApi<MemoData>(
+      `/api/memo/${ticker}?risk_profile=${encodeURIComponent(riskProfile)}&time_horizon=${encodeURIComponent(timeHorizon)}&source=${encodeURIComponent(source)}`
+    ),
 
   getInsight: (ticker: string, riskProfile: string = "Moderate", model: string = "dual", source: string = "tradingview") =>
     fetchApi<InsightData>(
